@@ -47,15 +47,8 @@ class OwnGoal(CtaTemplate):
     ]
 
     # 声明变量，在程序运行时变化
-    SHA_TZ = dt.timezone(
-        dt.timedelta(hours=8),
-        name='Asia/Shanghai',
-    )
-
-    # trade_starttime = dt.datetime(2022, 1, 7, 9, 0, 0, tzinfo=pytz.timezone(SHA_TZ))
-    # trade_starttime = dt.datetime(2022, 1, 7, 9, 0, 0).replace(tzinfo=pytz.timezone('Asia/Shanghai'))
-    trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 7, 9, 0, 0))
-    # trade_starttime.astimezone(SHA_TZ)
+    max_ratio = 0
+    trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
     price_tick = 0
     open_standby = False
     open_standby_mean = 0.0
@@ -65,6 +58,7 @@ class OwnGoal(CtaTemplate):
     tick_num_loss = 20
     profit_max_value = 0
     variables = [
+        "max_ratio",
         "trade_starttime",
         "price_tick",
         "open_standby",
@@ -103,6 +97,16 @@ class OwnGoal(CtaTemplate):
         self.write_log("策略启动")
 
         self.price_tick = self.get_pricetick()
+        self.max_ratio = 0
+        self.trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
+        self.price_tick = 0
+        self.open_standby = False
+        self.open_standby_mean = 0.0
+        self.lastprice_list: np.ndarray = np.zeros(self.offset_msg_length)
+        self.open_price = 0.0
+        self.tick_num_profit = 50
+        self.tick_num_loss = 20
+        self.profit_max_value = 0
 
         # 通知图形界面更新（策略最新状态）
         # 不调用该函数则界面不会变化
@@ -111,6 +115,18 @@ class OwnGoal(CtaTemplate):
     # 策略停止
     def on_stop(self):
         self.write_log("策略停止")
+
+        self.price_tick = self.get_pricetick()
+        self.max_ratio = 0
+        self.trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
+        self.price_tick = 0
+        self.open_standby = False
+        self.open_standby_mean = 0.0
+        self.lastprice_list: np.ndarray = np.zeros(self.offset_msg_length)
+        self.open_price = 0.0
+        self.tick_num_profit = 50
+        self.tick_num_loss = 20
+        self.profit_max_value = 0
 
         # 通知图形界面更新（策略最新状态）
         # 不调用该函数则界面不会变化
@@ -132,6 +148,9 @@ class OwnGoal(CtaTemplate):
             if self.pos == 0:
                 if not self.open_standby:
                     mean = np.mean(self.lastprice_list)
+                    ratio = tick.last_price / mean
+                    if ratio > self.max_ratio:
+                        self.max_ratio = ratio
                     if tick.last_price > (mean * 1.03):
                         self.open_standby_mean = mean
                         self.open_standby = True
