@@ -18,6 +18,8 @@ from queue import Queue
 
 import datetime as dt
 import pytz
+import queue
+import collections
 
 """
 展示基础策略
@@ -32,8 +34,8 @@ class OwnGoal(CtaTemplate):
     volume = 1
     offset_msg_length = 20
     break_high_msg_length = 12
-    ratio_long_short_open = 0.5
     ratio_long_short_stopprofit = 3
+    ratio_long_short_open = 0.5
     overprice = 5
     timeout = 1
     parameters = [
@@ -48,18 +50,21 @@ class OwnGoal(CtaTemplate):
 
     # 声明变量，在程序运行时变化
     max_ratio = 0
-    trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
     price_tick = 0
     open_standby = False
     open_standby_mean = 0.0
-    lastprice_list: np.ndarray = np.zeros(offset_msg_length)
     open_price = 0.0
     tick_num_profit = 50
     tick_num_loss = 20
     profit_max_value = 0
+    mean_price_tick_queue: collections.deque = collections.deque()
+    trade_price_tick_queue: collections.deque = collections.deque()
+    trade_price_mean = 0
+    trade_price_max = 0
+    mean_price_tick_queue_size = 0
+    trade_price_tick_queue_size = 0
     variables = [
         "max_ratio",
-        "trade_starttime",
         "price_tick",
         "open_standby",
         "open_standby_mean",
@@ -67,7 +72,14 @@ class OwnGoal(CtaTemplate):
         "open_price",
         "tick_num_profit",
         "tick_num_loss",
-        "profit_max_value"
+        "profit_max_value",
+        ""
+        "+",
+        "trade_price_tick_queue",
+        "trade_price_mean",
+        "trade_price_max",
+        "mean_price_tick_queue_size",
+        "trade_price_tick_queue_size"
     ]
 
     def __init__(self, cta_engine, strategy_name, vt_symbol, setting):
@@ -90,23 +102,41 @@ class OwnGoal(CtaTemplate):
         # 加载历史数据回测，加载10天
         # self.load_bar(10)
         # 加载tick数据回测，加载30天
-        self.load_tick(30)
+        self.load_tick(1)
+
+        self.max_ratio = 0
+        self.price_tick = 0
+        self.open_standby = False
+        self.open_standby_mean = 0.0
+        self.open_price = 0.0
+        self.tick_num_profit = 50
+        self.tick_num_loss = 20
+        self.profit_max_value = 0
+        self.mean_price_tick_queue: collections.deque = collections.deque()
+        self.trade_price_tick_queue: collections.deque = collections.deque()
+        self.trade_price_mean = 0
+        self.trade_price_max = 0
+        self.mean_price_tick_queue_size = 0
+        self.trade_price_tick_queue_size = 0
 
     # 策略启动
     def on_start(self):
         self.write_log("策略启动")
 
-        self.price_tick = self.get_pricetick()
         self.max_ratio = 0
-        self.trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
         self.price_tick = 0
         self.open_standby = False
         self.open_standby_mean = 0.0
-        self.lastprice_list: np.ndarray = np.zeros(self.offset_msg_length)
         self.open_price = 0.0
         self.tick_num_profit = 50
         self.tick_num_loss = 20
         self.profit_max_value = 0
+        self.mean_price_tick_queue: collections.deque = collections.deque()
+        self.trade_price_tick_queue: collections.deque = collections.deque()
+        self.trade_price_mean = 0
+        self.trade_price_max = 0
+        self.mean_price_tick_queue_size = 0
+        self.trade_price_tick_queue_size = 0
 
         # 通知图形界面更新（策略最新状态）
         # 不调用该函数则界面不会变化
@@ -118,7 +148,6 @@ class OwnGoal(CtaTemplate):
 
         self.price_tick = self.get_pricetick()
         self.max_ratio = 0
-        self.trade_starttime = pytz.timezone('Asia/Shanghai').localize(dt.datetime(2022, 1, 5, 9, 0, 0))
         self.price_tick = 0
         self.open_standby = False
         self.open_standby_mean = 0.0
@@ -134,70 +163,117 @@ class OwnGoal(CtaTemplate):
 
     # 获得tick数据推送
     def on_tick(self, tick: TickData):
-        if tick.datetime < self.trade_starttime:
+        # 去除非交易时间的数据
+        if tick.datetime.hour <= 8 or 12 < tick.datetime.hour < 21:
             return
 
-        if tick.datetime.hour < self.trade_starttime.hour:
-            return
+        if tick.datetime.day == 7:
+            a = 1
 
         # 将tick数据推送给bg以使其生成k线
         # self.bg.update_tick(tick)
 
-        # 最新价数组
-        if self.lastprice_list[0] != 0:
-            if self.pos == 0:
-                if not self.open_standby:
-                    mean = np.mean(self.lastprice_list)
-                    ratio = tick.last_price / mean
-                    if ratio > self.max_ratio:
-                        self.max_ratio = ratio
-                    if tick.last_price > (mean * 1.03):
-                        self.open_standby_mean = mean
-                        self.open_standby = True
-                else:
-                    if tick.last_price <= (self.open_standby_mean * 1.015):
-                        self.open_standby_mean = 0.0
-                        self.open_standby = False
-
-                if self.open_standby:
-                    # 开仓条件一
-                    bid_volume_total = tick.bid_volume_1 + tick.bid_volume_2 + tick.bid_volume_3 + tick.bid_volume_4 + tick.bid_volume_5
-                    ask_volume_total = tick.ask_volume_1 + tick.ask_volume_2 + tick.ask_volume_3 + tick.ask_volume_4 + tick.ask_volume_5
-                    cond1 = bid_volume_total < ask_volume_total * self.ratio_long_short_open
-                    # 开仓条件二
-                    offest = self.offset_msg_length - self.break_high_msg_length
-                    cond2 = np.max(self.lastprice_list[offest:]) < tick.last_price
-                    if cond1 or cond2:
-                        # 开空仓
-                        self.short(tick.ask_price_1 - self.price_tick * self.overprice, self.volume)
+        if self.mean_price_tick_queue_size != 0:
+            t = self.mean_price_tick_queue.popleft()
+            if t.datetime.day != tick.datetime.day:
+                self.mean_price_tick_queue.clear()
+                self.mean_price_tick_queue_size = 0
+                self.trade_price_tick_queue.clear()
+                self.trade_price_tick_queue_size = 0
+                self.open_standby = False
             else:
-                self.profit_max_value = self.open_price - tick.last_price
-                if self.profit_max_value > 0:
-                    self.tick_num_profit += 1
-                else:
-                    self.tick_num_loss += 1
+                self.mean_price_tick_queue.appendleft(t)
 
-                # 止损判断
-                if tick.last_price > self.open_price:
-                    # 止损条件一
-                    cond1 = self.open_price == tick.high_price
-                    # 止损条件二
-                    cond2 = self.tick_num_loss > self.tick_num_loss
-                    if cond1 or cond2:
-                        self.sell(tick.ask_price_1 + self.price_tick * self.overprice, self.volume)
-                # 止盈判断
-                else:
-                    # 止盈条件一
-                    bid_volume_total = tick.bid_volume_1 + tick.bid_volume_2 + tick.bid_volume_3 + tick.bid_volume_4 + tick.bid_volume_5
-                    ask_volume_total = tick.ask_volume_1 + tick.ask_volume_2 + tick.ask_volume_3 + tick.ask_volume_4 + tick.ask_volume_5
-                    cond1 = bid_volume_total < ask_volume_total * self.ratio_long_short_stopprofit
-                    # 止盈条件二
-                    cond2 = self.tick_num_profit > self.tick_num_profit and self.profit_max_value
-                    if cond1 or cond2:
-                        self.sell(tick.ask_price_1 + self.price_tick * self.overprice, self.volume)
+        if self.mean_price_tick_queue_size != 0:
+            t = self.mean_price_tick_queue.popleft()
+            if (tick.datetime - t.datetime).seconds >= 3:
+                self.mean_price_tick_queue.appendleft(t)
+                if self.pos == 0:
+                    if not self.open_standby:
+                        if tick.last_price >= (self.trade_price_mean * 1.03):
+                            self.open_standby = True
+                    # else:
+                    #     if tick.last_price <= (self.open_standby_mean * 1.015):
+                    #         self.open_standby = False
 
-        self.lastprice_list[:-1] = self.lastprice_list[1:]
-        self.lastprice_list[-1] = tick.last_price
+                    if self.open_standby:
+                        # 开仓条件一
+                        length = self.trade_price_tick_queue_size
+                        max_price_tick: TickData = TickData
+                        max_price_tick.last_price = 0
+                        while length > 0:
+                            t = self.trade_price_tick_queue.popleft()
+                            if t.last_price > max_price_tick.last_price:
+                                max_price_tick = t
+                            length -= 1
+                            self.trade_price_tick_queue.appendleft(t)
+                        cond1 = tick.last_price < max_price_tick.last_price
+                        # 开仓条件二
+                        bid_volume_total = tick.bid_volume_1 + tick.bid_volume_2 + tick.bid_volume_3 + tick.bid_volume_4 + tick.bid_volume_5
+                        ask_volume_total = tick.ask_volume_1 + tick.ask_volume_2 + tick.ask_volume_3 + tick.ask_volume_4 + tick.ask_volume_5
+                        cond2 = bid_volume_total < ask_volume_total * self.ratio_long_short_open
+                        if cond1 or cond2:
+                            # 开空仓
+                            self.short(tick.ask_price_1 - self.price_tick * self.overprice, self.volume)
+                else:
+                    # 获得盈利or亏损的行情tick数
+                    self.profit_max_value = self.open_price - tick.last_price
+                    if self.profit_max_value > 0:
+                        self.tick_num_profit += 1
+                    else:
+                        self.tick_num_loss += 1
+
+                    # 止损判断
+                    if tick.last_price > self.open_price:
+                        # 止损条件一
+                        cond1 = self.open_price == tick.high_price
+                        # 止损条件二
+                        cond2 = self.tick_num_loss > self.tick_num_loss
+                        if cond1 or cond2:
+                            self.sell(tick.ask_price_1 + self.price_tick * self.overprice, self.volume)
+                    # 止盈判断
+                    else:
+                        # 止盈条件一
+                        bid_volume_total = tick.bid_volume_1 + tick.bid_volume_2 + tick.bid_volume_3 + tick.bid_volume_4 + tick.bid_volume_5
+                        ask_volume_total = tick.ask_volume_1 + tick.ask_volume_2 + tick.ask_volume_3 + tick.ask_volume_4 + tick.ask_volume_5
+                        cond1 = bid_volume_total < ask_volume_total * self.ratio_long_short_stopprofit
+                        # 止盈条件二
+                        cond2 = self.tick_num_profit > self.tick_num_profit and self.profit_max_value
+                        if cond1 or cond2:
+                            self.sell(tick.ask_price_1 + self.price_tick * self.overprice, self.volume)
+            else:
+                self.mean_price_tick_queue.appendleft(t)
+
+        while self.mean_price_tick_queue_size != 0:
+            mpt = self.mean_price_tick_queue.popleft()
+            self.mean_price_tick_queue_size -= 1
+            if (tick.datetime - mpt.datetime).seconds <= 5:
+                self.mean_price_tick_queue.appendleft(mpt)
+                self.mean_price_tick_queue_size += 1
+                break
+            else:
+                continue
+
+        while self.trade_price_tick_queue_size != 0:
+            tpt = self.trade_price_tick_queue.popleft()
+            self.trade_price_tick_queue_size -= 1
+            if (tick.datetime - tpt.datetime).seconds <= 3:
+                self.trade_price_tick_queue.appendleft(tpt)
+                self.trade_price_tick_queue_size += 1
+                break
+            else:
+                if self.trade_price_tick_queue_size == 0:
+                    self.trade_price_mean
+                else:
+                    self.trade_price_mean = (self.trade_price_mean * (self.trade_price_tick_queue_size + 1) - tpt.last_price) / self.trade_price_tick_queue_size
+                continue
+
+        self.mean_price_tick_queue.append(tick)
+        self.mean_price_tick_queue_size += 1
+
+        self.trade_price_mean = (self.trade_price_mean * self.trade_price_tick_queue_size + tick.last_price) / (self.trade_price_tick_queue_size + 1)
+        self.trade_price_tick_queue.append(tick)
+        self.trade_price_tick_queue_size += 1
 
     # 获得bar数据推送
     def on_bar(self, bar: BarData):
