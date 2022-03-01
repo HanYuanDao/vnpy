@@ -42,7 +42,7 @@ vnpy_hft==1.0.0
 vnpy_sec==1.0.1
 vnpy_hts==1.0.0
 
-vnpy_ctastrategy==1.0.6
+# vnpy_ctastrategy==1.0.6
 # vnpy_ctabacktester==1.0.4
 vnpy_riskmanager==1.0.2
 vnpy_datamanager==1.0.4

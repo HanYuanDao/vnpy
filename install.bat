@@ -7,9 +7,10 @@ python -m pip install https://pip.vnpy.com/colletion/TA_Lib-0.4.17-cp37-cp37m-wi
 ::Install Python Modules
 python -m pip install -r requirements.txt
 
-python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@1.0.1#egg=vnpy_mongodb
-python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@6.5.1.7#egg=vnpy_ctp
-python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@1.0.4#egg=vnpy_ctabacktester
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@tag290#egg=vnpy_mongodb
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag290#egg=vnpy_ctp
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag290#egg=vnpy_ctabacktester
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@1.0.6#egg=vnpy_ctastrategy
 
 :: Install vn.py
 python -m pip install .
