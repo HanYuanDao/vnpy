@@ -11,7 +11,7 @@ python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@tag2
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag290#egg=vnpy_ctp
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag290#egg=vnpy_ctabacktester
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@tag290#egg=vnpy_ctastrategy
-python -m pip install -e git+https://github.com/HanYuanDao/vnpy_chartwizard.git@1.0.1#egg=vnpy_chartwizard
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_chartwizard.git@tag290#egg=vnpy_chartwizard
 
 :: Install vn.py
 python -m pip install .
