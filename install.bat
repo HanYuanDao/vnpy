@@ -10,7 +10,7 @@ python -m pip install -r requirements.txt
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@tag290#egg=vnpy_mongodb
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag290#egg=vnpy_ctp
 python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag290#egg=vnpy_ctabacktester
-python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@1.0.6#egg=vnpy_ctastrategy
+python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@tag290#egg=vnpy_ctastrategy
 
 :: Install vn.py
 python -m pip install .
