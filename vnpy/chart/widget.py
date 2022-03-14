@@ -462,7 +462,7 @@ class ChartCursor(QtCore.QObject):
 
         dt = self._manager.get_datetime(self._x)
         if dt:
-            self._x_label.setText(dt.strftime("%Y-%m-%d %H:%M:%S"))
+            self._x_label.setText(dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
             self._x_label.show()
             self._x_label.setPos(self._x, bottom_right.y())
             self._x_label.setAnchor((0, 0))

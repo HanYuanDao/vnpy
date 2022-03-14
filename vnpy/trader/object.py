@@ -163,6 +163,8 @@ class TradeData(BaseData):
     volume: float = 0
     datetime: datetime = None
 
+    trade_memo: str = ""
+
     def __post_init__(self):
         """"""
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
