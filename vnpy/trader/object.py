@@ -113,6 +113,7 @@ class OrderData(BaseData):
     symbol: str
     exchange: Exchange
     orderid: str
+    memo: str = ""
 
     type: OrderType = OrderType.LIMIT
     direction: Direction = None

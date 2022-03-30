@@ -4,22 +4,22 @@ from typing import List, Dict, Tuple
 import pyqtgraph as pg
 
 from vnpy.trader.ui import QtCore, QtGui, QtWidgets, Qt
-from vnpy.trader.object import BarData, TickData
+from vnpy.trader.object import BaseData, BarData, TickData
 
 from .base import BLACK_COLOR, UP_COLOR, DOWN_COLOR, PEN_WIDTH, BAR_WIDTH
-from .manager import BarManager
+from .manager import BaseDataManager, BarManager, TickManager
 
 
 class ChartItem(pg.GraphicsObject):
     """"""
 
-    def __init__(self, manager: BarManager):
+    def __init__(self, manager: BaseDataManager):
         """"""
         super().__init__()
 
-        self._manager: BarManager = manager
+        self._manager: BaseDataManager = manager
 
-        self._bar_picutures: Dict[int, QtGui.QPicture] = {}
+        self._data_picutures: Dict[int, QtGui.QPicture] = {}
         self._item_picuture: QtGui.QPicture = None
 
         self._black_brush: QtGui.QBrush = pg.mkBrush(color=BLACK_COLOR)
@@ -40,7 +40,7 @@ class ChartItem(pg.GraphicsObject):
         self.setFlag(self.ItemUsesExtendedStyleOption)
 
     @abstractmethod
-    def _draw_bar_picture(self, ix: int, bar: BarData) -> QtGui.QPicture:
+    def _draw_bar_picture(self, ix: int, bar: BaseData) -> QtGui.QPicture:
         """
         Draw picture for specific bar.
         """
@@ -69,25 +69,25 @@ class ChartItem(pg.GraphicsObject):
         """
         pass
 
-    def update_history(self, history: List[BarData]) -> BarData:
+    def update_history(self, history: List[BaseData]) -> BaseData:
         """
         Update a list of bar data.
         """
-        self._bar_picutures.clear()
+        self._data_picutures.clear()
 
         bars = self._manager.get_all_bars()
         for ix, bar in enumerate(bars):
-            self._bar_picutures[ix] = None
+            self._data_picutures[ix] = None
 
         self.update()
 
-    def update_bar(self, bar: BarData) -> BarData:
+    def update_bar(self, bar: BaseData) -> BaseData:
         """
         Update single bar data.
         """
         ix = self._manager.get_index(bar.datetime)
 
-        self._bar_picutures[ix] = None
+        self._data_picutures[ix] = None
 
         self.update()
 
@@ -113,7 +113,7 @@ class ChartItem(pg.GraphicsObject):
 
         min_ix = int(rect.left())
         max_ix = int(rect.right())
-        max_ix = min(max_ix, len(self._bar_picutures))
+        max_ix = min(max_ix, len(self._data_picutures))
 
         rect_area = (min_ix, max_ix)
         if rect_area != self._rect_area or not self._item_picuture:
@@ -130,12 +130,12 @@ class ChartItem(pg.GraphicsObject):
         painter = QtGui.QPainter(self._item_picuture)
 
         for ix in range(min_ix, max_ix):
-            bar_picture = self._bar_picutures[ix]
+            bar_picture = self._data_picutures[ix]
 
             if bar_picture is None:
                 bar = self._manager.get_bar(ix)
                 bar_picture = self._draw_bar_picture(ix, bar)
-                self._bar_picutures[ix] = bar_picture
+                self._data_picutures[ix] = bar_picture
 
             bar_picture.play(painter)
 
@@ -146,7 +146,7 @@ class ChartItem(pg.GraphicsObject):
         Clear all data in the item.
         """
         self._item_picuture = None
-        self._bar_picutures.clear()
+        self._data_picutures.clear()
         self.update()
 
 
@@ -163,7 +163,7 @@ class CandleItem(ChartItem):
         candle_picture = QtGui.QPicture()
         painter = QtGui.QPainter(candle_picture)
 
-        if isinstance(bar, TickData):
+        if isinstance(bar, BarData):
             bar.open_price = bar.ask_price_1
             bar.high_price = bar.ask_price_5
             bar.low_price = bar.bid_price_5
@@ -209,7 +209,7 @@ class CandleItem(ChartItem):
         rect = QtCore.QRectF(
             0,
             min_price,
-            len(self._bar_picutures),
+            len(self._data_picutures),
             max_price - min_price
         )
         return rect
@@ -229,54 +229,13 @@ class CandleItem(ChartItem):
         """
         bar = self._manager.get_bar(ix)
 
-        if isinstance(bar, TickData):
+        if isinstance(bar, BarData):
             bar.open_price = bar.ask_price_1
             bar.high_price = bar.ask_price_5
             bar.low_price = bar.bid_price_5
             bar.close_price = bar.bid_price_1
 
         if bar:
-            # if isinstance(bar, TickData):
-            #     words = [
-            #         "Date",
-            #         bar.datetime.strftime("%Y-%m-%d"),
-            #         "",
-            #         "Time",
-            #         bar.datetime.strftime("%H:%M:%S.%f"),
-            #         "",
-            #         "Open",
-            #         str(bar.ask_price_1),
-            #         "",
-            #         "High",
-            #         str(bar.ask_price_5),
-            #         "",
-            #         "Low",
-            #         str(bar.bid_price_5),
-            #         "",
-            #         "Close",
-            #         str(bar.bid_price_1)
-            #     ]
-            # else:
-            #     words = [
-            #         "Date",
-            #         bar.datetime.strftime("%Y-%m-%d"),
-            #         "",
-            #         "Time",
-            #         bar.datetime.strftime("%H:%M"),
-            #         "",
-            #         "Open",
-            #         str(bar.open_price),
-            #         "",
-            #         "High",
-            #         str(bar.high_price),
-            #         "",
-            #         "Low",
-            #         str(bar.low_price),
-            #         "",
-            #         "Close",
-            #         str(bar.close_price)
-            #     ]
-
             words = [
                 "Date",
                 bar.datetime.strftime("%Y-%m-%d"),
@@ -343,7 +302,7 @@ class VolumeItem(ChartItem):
         rect = QtCore.QRectF(
             0,
             min_volume,
-            len(self._bar_picutures),
+            len(self._data_picutures),
             max_volume - min_volume
         )
         return rect
@@ -374,11 +333,11 @@ class VolumeItem(ChartItem):
 class TickLineItem(ChartItem):
     """"""
 
-    def __init__(self, manager: BarManager):
+    def __init__(self, manager: TickManager):
         """"""
         super().__init__(manager)
         # self.point_pen = pg.mkPen(color=(255, 255, 255), width=8)
-        self.point_pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 1, QtCore.Qt.SolidLine)
+        self.point_pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 0.8, QtCore.Qt.SolidLine)
         self.point_Brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         self.point_Brush.setStyle(QtCore.Qt.SolidPattern)
 
@@ -391,17 +350,14 @@ class TickLineItem(ChartItem):
         # Set painter color
         painter.setPen(self.point_pen)
         painter.setBrush(self.point_Brush)
-        # painter.setPen(self._down_pen)
-        # painter.setBrush(self._down_brush)
 
         rect = QtCore.QRectF(
             ix - 0.1,
-            tick.last_price - 0.5,
+            tick.last_price - 0.1,
             0.1 * 2,
-            1
+            0.1 * 2
         )
         painter.drawRect(rect)
-        # painter.drawPoint(QtCore.QPointF(ix, tick.last_price))
 
         # Finish
         painter.end()
@@ -413,7 +369,7 @@ class TickLineItem(ChartItem):
         rect = QtCore.QRectF(
             0,
             min_price,
-            len(self._bar_picutures),
+            len(self._data_picutures),
             max_price - min_price
         )
         return rect
@@ -444,23 +400,27 @@ class TickLineItem(ChartItem):
                 "Time",
                 tick.datetime.strftime("%H:%M:%S.%f")[:-3],
                 "",
-                "ask_price_5",
-                str(tick.ask_price_5),
-                "",
-                "ask_price_1",
-                str(tick.ask_price_1),
+                "ask_price_1\\ask_price_2\\ask_price_3\\ask_price_4\\ask_price_5",
+                str(tick.ask_price_1) + "\\" + str(tick.ask_price_2) + "\\" +
+                str(tick.ask_price_3) + "\\" + str(tick.ask_price_4) + "\\" + str(tick.ask_price_5),
                 "",
                 "last_price",
                 str(tick.last_price),
                 "",
-                "bid_price_1",
-                str(tick.bid_price_1),
+                "bid_price_1\\bid_price_2\\bid_price_3\\bid_price_4\\bid_price_5",
+                str(tick.bid_price_1) + "\\" + str(tick.bid_price_2) + "\\" +
+                str(tick.bid_price_3) + "\\" + str(tick.bid_price_4) + "\\" + str(tick.bid_price_5),
                 "",
-                "bid_price_5",
-                str(tick.bid_price_5),
+                "ask_volume_1\\ask_volume_2\\ask_volume_3\\ask_volume_4\\ask_volume_5",
+                str(tick.ask_volume_1) + "\\" + str(tick.ask_volume_2) + "\\" +
+                str(tick.ask_volume_3) + "\\" + str(tick.ask_volume_4) + "\\" + str(tick.ask_volume_5),
                 "",
                 "ask_total_volume/bid_total_volume",
-                "NaN" if (bid_total_volume == 0) else str(ask_total_volume / bid_total_volume)
+                "NaN" if (bid_total_volume == 0) else str(ask_total_volume / bid_total_volume),
+                "",
+                "bid_volume_1\\bid_volume_2\\bid_volume_3\\bid_volume_4\\bid_volume_5",
+                str(tick.bid_volume_1) + "\\" + str(tick.bid_volume_2) + "\\" +
+                str(tick.bid_volume_3) + "\\" + str(tick.bid_volume_4) + "\\" + str(tick.bid_volume_5)
             ]
             text = "\n".join(words)
         else:
@@ -472,7 +432,7 @@ class TickLineItem(ChartItem):
 class TickVolumeItem(ChartItem):
     """"""
 
-    def __init__(self, manager: BarManager):
+    def __init__(self, manager: TickManager):
         """"""
         super().__init__(manager)
 
@@ -505,7 +465,7 @@ class TickVolumeItem(ChartItem):
         rect = QtCore.QRectF(
             0,
             min_volume,
-            len(self._bar_picutures),
+            len(self._data_picutures),
             max_volume - min_volume
         )
         return rect
