@@ -5,7 +5,7 @@ import pyqtgraph as pg
 from vnpy.trader.ui import QtGui, QtWidgets, QtCore
 from vnpy.trader.object import BarData
 
-from .manager import BarManager
+from .manager import BaseDataManager, BarManager
 from .base import (
     GREY_COLOR, WHITE_COLOR, CURSOR_COLOR, BLACK_COLOR,
     to_int, NORMAL_FONT
@@ -21,11 +21,11 @@ class ChartWidget(pg.PlotWidget):
     """"""
     MIN_BAR_COUNT = 100
 
-    def __init__(self, parent: QtWidgets.QWidget = None):
+    def __init__(self, parent: QtWidgets.QWidget = None, data_manager_class: Type[BaseDataManager] = BarManager):
         """"""
         super().__init__(parent)
 
-        self._manager: BarManager = BarManager()
+        self._manager: BaseDataManager = data_manager_class()
 
         self._plots: Dict[str, pg.PlotItem] = {}
         self._items: Dict[str, ChartItem] = {}
@@ -152,7 +152,7 @@ class ChartWidget(pg.PlotWidget):
         if self._cursor:
             self._cursor.clear_all()
 
-    def update_history(self, history: List[BarData]) -> None:
+    def update_history(self, history: List[BaseDataManager]) -> None:
         """
         Update a list of bar data.
         """
@@ -309,7 +309,7 @@ class ChartCursor(QtCore.QObject):
     def __init__(
         self,
         widget: ChartWidget,
-        manager: BarManager,
+        manager: BaseDataManager,
         plots: Dict[str, pg.GraphicsObject],
         item_plot_map: Dict[ChartItem, pg.GraphicsObject]
     ):
@@ -317,7 +317,7 @@ class ChartCursor(QtCore.QObject):
         super().__init__()
 
         self._widget: ChartWidget = widget
-        self._manager: BarManager = manager
+        self._manager: BaseDataManager = manager
         self._plots: Dict[str, pg.GraphicsObject] = plots
         self._item_plot_map: Dict[ChartItem, pg.GraphicsObject] = item_plot_map
 
@@ -462,7 +462,7 @@ class ChartCursor(QtCore.QObject):
 
         dt = self._manager.get_datetime(self._x)
         if dt:
-            self._x_label.setText(dt.strftime("%Y-%m-%d %H:%M:%S"))
+            self._x_label.setText(dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
             self._x_label.show()
             self._x_label.setPos(self._x, bottom_right.y())
             self._x_label.setAnchor((0, 0))

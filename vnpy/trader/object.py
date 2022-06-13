@@ -113,6 +113,7 @@ class OrderData(BaseData):
     symbol: str
     exchange: Exchange
     orderid: str
+    memo: str = ""
 
     type: OrderType = OrderType.LIMIT
     direction: Direction = None
@@ -162,6 +163,8 @@ class TradeData(BaseData):
     price: float = 0
     volume: float = 0
     datetime: datetime = None
+
+    trade_memo: str = ""
 
     def __post_init__(self):
         """"""

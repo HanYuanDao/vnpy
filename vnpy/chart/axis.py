@@ -2,18 +2,18 @@ from typing import List
 
 import pyqtgraph as pg
 
-from .manager import BarManager
+from .manager import BaseDataManager
 from .base import AXIS_WIDTH, NORMAL_FONT
 
 
 class DatetimeAxis(pg.AxisItem):
     """"""
 
-    def __init__(self, manager: BarManager, *args, **kwargs):
+    def __init__(self, manager: BaseDataManager, *args, **kwargs):
         """"""
         super().__init__(*args, **kwargs)
 
-        self._manager: BarManager = manager
+        self._manager: BaseDataManager = manager
 
         self.setPen(width=AXIS_WIDTH)
         self.tickFont = NORMAL_FONT

@@ -6,7 +6,7 @@ import webbrowser
 import types
 
 import qdarkstyle
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtGui, QtWidgets, QtCore, Qt
 
 from .mainwindow import MainWindow
 from ..setting import SETTINGS
