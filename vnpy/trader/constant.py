@@ -14,6 +14,12 @@ class Direction(Enum):
     NET = "净"
 
 
+class ProfitLoss(Enum):
+    """"""
+    PROFIT = "盈利"
+    LOSS = "亏损"
+
+
 class Offset(Enum):
     """
     Offset of order/trade.

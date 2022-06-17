@@ -14,7 +14,7 @@ import importlib_metadata
 
 import vnpy
 from vnpy.event import Event, EventEngine
-from ..constant import Direction, Exchange, Offset, OrderType
+from ..constant import Direction, Exchange, Offset, OrderType, ProfitLoss
 from ..engine import MainEngine
 from ..event import (
     EVENT_QUOTE,
@@ -32,6 +32,8 @@ from ..setting import SETTING_FILENAME, SETTINGS
 
 COLOR_LONG = QtGui.QColor("red")
 COLOR_SHORT = QtGui.QColor("green")
+COLOR_PROFIT = QtGui.QColor("red")
+COLOR_LOSS = QtGui.QColor("green")
 COLOR_BID = QtGui.QColor(255, 174, 201)
 COLOR_ASK = QtGui.QColor(160, 255, 160)
 COLOR_BLACK = QtGui.QColor("black")
@@ -98,6 +100,23 @@ class DirectionCell(EnumCell):
             self.setForeground(COLOR_SHORT)
         else:
             self.setForeground(COLOR_LONG)
+
+
+class ProfitLossCell(EnumCell):
+    """"""
+
+    def __init__(self, content: str, data: Any):
+        """"""
+        super(ProfitLossCell, self).__init__(content, data)
+
+    def set_content(self, content: Any, data: Any) -> None:
+        """"""
+        super(ProfitLossCell, self).set_content(content, data)
+
+        if content is ProfitLoss.PROFIT:
+            self.setForeground(COLOR_PROFIT)
+        else:
+            self.setForeground(COLOR_LOSS)
 
 
 class BidCell(BaseCell):

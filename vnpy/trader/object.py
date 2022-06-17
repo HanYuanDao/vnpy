@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from logging import INFO
 
-from .constant import Direction, Exchange, Interval, Offset, Status, Product, OptionType, OrderType
+from .constant import Direction, Exchange, Interval, Offset, Status, Product, OptionType, OrderType, ProfitLoss
 
 ACTIVE_STATUSES = set([Status.SUBMITTING, Status.NOTTRADED, Status.PARTTRADED])
 
@@ -171,6 +171,21 @@ class TradeData(BaseData):
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
         self.vt_orderid = f"{self.gateway_name}.{self.orderid}"
         self.vt_tradeid = f"{self.gateway_name}.{self.tradeid}"
+
+
+@dataclass
+class TradePairData(BaseData):
+    """"""
+    open_dt: str
+    open_price: float
+    close_dt: str
+    close_price: float
+    direction: str
+    volume: str
+    profit_loss: float
+    profit_round: ProfitLoss
+    trade_memo_open: str
+    trade_memo_close: str
 
 
 @dataclass
