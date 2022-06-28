@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 from datetime import datetime
 from abc import ABC, abstractmethod
 
-from vnpy.trader.object import BaseData, BarData, TickData
+from vnpy.trader.object import BaseData, BarData, TickData, TradeIntention
 
 from .base import to_int
 
@@ -258,8 +258,12 @@ class TickManager:
     def __init__(self):
         """"""
         self._ticks: Dict[datetime, TickData] = {}
-        self._datetime_index_map: Dict[datetime, int] = {}
-        self._index_datetime_map: Dict[int, datetime] = {}
+        self._tick_datetime_index_map: Dict[datetime, int] = {}
+        self._tick_index_datetime_map: Dict[int, datetime] = {}
+
+        self._trade_intention: Dict[datetime, TradeIntention] = {}
+        self._intention_datetime_index_map: Dict[datetime, int] = {}
+        self._intention_index_datetime_map: Dict[int, datetime] = {}
 
         self._price_ranges: Dict[Tuple[int, int], Tuple[float, float]] = {}
         self._volume_ranges: Dict[Tuple[int, int], Tuple[float, float]] = {}
@@ -279,8 +283,8 @@ class TickManager:
         ix_list = range(len(self._ticks))
         dt_list = self._ticks.keys()
 
-        self._datetime_index_map = dict(zip(dt_list, ix_list))
-        self._index_datetime_map = dict(zip(ix_list, dt_list))
+        self._tick_datetime_index_map = dict(zip(dt_list, ix_list))
+        self._tick_index_datetime_map = dict(zip(ix_list, dt_list))
 
         # Clear data range cache
         self._clear_cache()
@@ -291,12 +295,25 @@ class TickManager:
         """
         dt = tick.datetime
 
-        if dt not in self._datetime_index_map:
+        if dt not in self._tick_datetime_index_map:
             ix = len(self._ticks)
-            self._datetime_index_map[dt] = ix
-            self._index_datetime_map[ix] = dt
+            self._tick_datetime_index_map[dt] = ix
+            self._tick_index_datetime_map[ix] = dt
 
         self._ticks[dt] = tick
+
+        self._clear_cache()
+
+    def update_trade_intention(self, trade_intention: TradeIntention) -> None:
+        """"""
+        dt = trade_intention.datetime
+
+        if dt not in self._intention_datetime_index_map:
+            ix = len(self._trade_intention)
+            self._intention_datetime_index_map[dt] = ix
+            self._intention_index_datetime_map[ix] = dt
+
+        self._trade_intention[dt] = trade_intention
 
         self._clear_cache()
 
@@ -310,25 +327,36 @@ class TickManager:
         """
         Get index with datetime.
         """
-        return self._datetime_index_map.get(dt, None)
+        return self._tick_datetime_index_map.get(dt, None)
 
     def get_datetime(self, ix: float) -> datetime:
         """
         Get datetime with index.
         """
         ix = to_int(ix)
-        return self._index_datetime_map.get(ix, None)
+        return self._tick_index_datetime_map.get(ix, None)
 
-    def get_bar(self, ix: float) -> BarData:
+    def get_bar(self, ix: float) -> TickData:
         """
         Get tick data with index.
         """
         ix = to_int(ix)
-        dt = self._index_datetime_map.get(ix, None)
+        dt = self._tick_index_datetime_map.get(ix, None)
         if not dt:
             return None
 
         return self._ticks[dt]
+
+    def get_intention(self, ix: float) -> TradeIntention:
+        """
+        Get intention of Trade with index.
+        """
+        ix = to_int(ix)
+        dt = self._tick_index_datetime_map.get(ix, None)
+        if not dt:
+            return None
+
+        return self._trade_intention[dt]
 
     def get_all_bars(self) -> List[TickData]:
         """
@@ -410,7 +438,7 @@ class TickManager:
         Clear all data in manager.
         """
         self._ticks.clear()
-        self._datetime_index_map.clear()
-        self._index_datetime_map.clear()
+        self._tick_datetime_index_map.clear()
+        self._tick_index_datetime_map.clear()
 
         self._clear_cache()

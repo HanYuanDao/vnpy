@@ -14,6 +14,16 @@ class Direction(Enum):
     NET = "净"
 
 
+class TradeIntentionTrend(Enum):
+    """
+    the change of price
+    """
+    UP = "价格上升"
+    DOWN = "价格下降"
+    STOP_PROFIT = "止盈"
+    STOP_LOSS = "止损"
+
+
 class ProfitLoss(Enum):
     """"""
     PROFIT = "盈利"

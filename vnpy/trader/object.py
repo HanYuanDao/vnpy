@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from logging import INFO
 
-from .constant import Direction, Exchange, Interval, Offset, Status, Product, OptionType, OrderType, ProfitLoss
+from .constant import Direction, Exchange, Interval, Offset, Status, Product, \
+    OptionType, OrderType, ProfitLoss, TradeIntentionTrend
 
 ACTIVE_STATUSES = set([Status.SUBMITTING, Status.NOTTRADED, Status.PARTTRADED])
 
@@ -186,6 +187,14 @@ class TradePairData(BaseData):
     profit_round: ProfitLoss
     trade_memo_open: str
     trade_memo_close: str
+
+
+@dataclass
+class TradeIntention(BaseData):
+    """"""
+    dt: datetime
+    trend: TradeIntentionTrend
+    memo: str
 
 
 @dataclass
