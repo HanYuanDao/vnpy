@@ -1,7 +1,7 @@
 from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
-from vnpy_ctp import VtpGateway
+from vnpy_ctp import VtpGateway, CtpGateway
 
 from vnpy_algotrading import AlgoTradingApp
 from vnpy_chartwizard import ChartWizardApp
