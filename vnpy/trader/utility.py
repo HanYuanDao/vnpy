@@ -113,8 +113,15 @@ def save_json(filename: str, data: dict) -> None:
             data,
             f,
             indent=4,
-            ensure_ascii=False
+            ensure_ascii=False,
+            default=set_default
         )
+
+
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    raise TypeError
 
 
 def round_to(value: float, target: float) -> float:
