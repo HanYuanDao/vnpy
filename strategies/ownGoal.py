@@ -94,7 +94,6 @@ class OwnGoal(CtaTemplate):
         "strategy_running",
         "strategy_trade_state",
         "strategy_trade_memo",
-        "tickdata_list",
         "open_price",
         "tick_num_profit",
         "tick_num_loss",
