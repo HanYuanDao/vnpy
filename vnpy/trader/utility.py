@@ -121,8 +121,8 @@ def save_json(filename: str, data: dict) -> None:
 
 def set_default(obj):
     if isinstance(obj, collections.deque):
-        return list(obj)
-    raise TypeError
+        return list
+    raise []
 
 
 def round_to(value: float, target: float) -> float:
