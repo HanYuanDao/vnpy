@@ -1,7 +1,7 @@
 from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
-from vnpy_ctp import VtpGateway, CtpGateway
+from vnpy_ctp import VtpGateway
 
 from vnpy_algotrading import AlgoTradingApp
 from vnpy_chartwizard import ChartWizardApp
@@ -38,7 +38,8 @@ def main():
     main_engine.add_app(DataRecorderApp)
     main_engine.add_app(ExcelRtdApp)
     main_engine.add_app(OptionMasterApp)
-    main_engine.add_app(PaperAccountApp)
+    # 本地单
+    # main_engine.add_app(PaperAccountApp)
     main_engine.add_app(PortfolioManagerApp)
     main_engine.add_app(PortfolioStrategyApp)
     main_engine.add_app(RiskManagerApp)

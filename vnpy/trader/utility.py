@@ -12,6 +12,7 @@ from math import floor, ceil
 
 import numpy as np
 import talib
+import collections
 
 from .object import BarData, TickData
 from .constant import Exchange, Interval
@@ -119,9 +120,9 @@ def save_json(filename: str, data: dict) -> None:
 
 
 def set_default(obj):
-    if isinstance(obj, set):
-        return list(obj)
-    raise TypeError
+    if isinstance(obj, collections.deque):
+        return list
+    raise []
 
 
 def round_to(value: float, target: float) -> float:
