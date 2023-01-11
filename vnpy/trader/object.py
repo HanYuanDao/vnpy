@@ -5,6 +5,7 @@ Basic data structure used for general trading function in the trading platform.
 from dataclasses import dataclass
 from datetime import datetime
 from logging import INFO
+import inspect
 
 from .constant import Direction, Exchange, Interval, Offset, Status, Product, \
     OptionType, OrderType, ProfitLoss, TradeIntentionTrend
@@ -32,13 +33,22 @@ class TickData(BaseData):
     """
 
     symbol: str
-    exchange: Exchange
+    exchange: str
     datetime: datetime
+
+    actionDay: str
+    tradDay: str
 
     name: str = ""
     volume: float = 0
     turnover: float = 0
     open_interest: float = 0
+    pre_open_interest: float = 0
+    open_interest_change: float = 0
+    average_price: float = 0
+    close_price: float = 0
+    set_price: float = 0
+    pre_set_price: float = 0
     last_price: float = 0
     last_volume: float = 0
     limit_up: float = 0
@@ -79,6 +89,12 @@ class TickData(BaseData):
         """"""
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
 
+    @classmethod
+    def from_dict(cls, env):
+        return cls(**{
+            k: v for k, v in env.items()
+            if k in inspect.signature(cls).parameters
+        })
 
 @dataclass
 class BarData(BaseData):
