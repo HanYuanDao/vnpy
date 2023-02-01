@@ -39,6 +39,12 @@ ta-lib-exists || install-ta-lib
 # Install Python Modules
 $python -m pip install -r requirements.txt
 
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@tag290#egg=vnpy_mongodb
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag290#egg=vnpy_ctp
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@tag290#egg=vnpy_ctastrategy
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_chartwizard.git@tag290#egg=vnpy_chartwizard
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag290#egg=vnpy_ctabacktester
+
 # Install local Chinese language environment
 locale-gen zh_CN.GB18030
 
