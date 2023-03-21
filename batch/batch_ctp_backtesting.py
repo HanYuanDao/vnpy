@@ -143,5 +143,5 @@ if __name__ == '__main__':
     print(os.getcwd())
 
     bts = BatchCTABackTest()
-    bts.run_batch_test_json(start_date=datetime(2022, 10, 1),
-                            end_date=datetime(2023, 12, 21))
+    bts.run_batch_test_json(start_date=datetime(2020, 10, 1),
+                            end_date=datetime(2021, 10, 21))
