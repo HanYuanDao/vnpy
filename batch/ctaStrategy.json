@@ -2,6 +2,8 @@
   "TheBollTacticOfND_j2305.DCE": {
     "class_name": "TheBollTacticOfND",
     "vt_symbol": "j2205.DCE",
+    "start_dt": "2021-01-01",
+    "end_dt": "2022-01-01",
     "setting": {
 
     }
@@ -9,6 +11,8 @@
   "TheBollTacticOfND_jm2305.DCE": {
     "class_name": "TheBollTacticOfND",
     "vt_symbol": "jm2205.DCE",
+    "start_dt": "2021-01-01",
+    "end_dt": "2022-01-01",
     "setting": {
 
     }

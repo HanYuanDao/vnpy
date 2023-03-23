@@ -1,7 +1,7 @@
 import json
 import os
 import traceback
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import pandas as pd
 from pandas import DataFrame
 from vnpy_ctastrategy.backtesting import BacktestingEngine
@@ -44,7 +44,7 @@ class BatchCTABackTest:
         else:
             print("symbol %s hasn't be maintained in config file" % vt_symbol)
 
-    def run_batch_test(self, strategy_setting, start_date, end_date, portfolio):
+    def run_batch_test(self, strategy_setting, portfolio):
         """
         进行回测
         """
@@ -53,6 +53,8 @@ class BatchCTABackTest:
         for strategy_name, strategy_config in strategy_setting.items():
             vt_symbol = strategy_config["vt_symbol"]
             self.engine = BacktestingEngine()
+            start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
+            end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
             self.add_parameters(vt_symbol, start_date, end_date)
             if type(strategy_config["setting"]) is str:
                 print(strategy_config["setting"])
@@ -85,14 +87,13 @@ class BatchCTABackTest:
             self.engine.show_chart(df_portfolio)
         return result_df
 
-    def run_batch_test_json(self, jsonpath="ctaStrategy.json", start_date=datetime(2022, 12, 1),
-                            end_date=datetime(2022, 12, 21), portfolio=True):
+    def run_batch_test_json(self, jsonpath="ctaStrategy.json", portfolio=True):
         """
         从ctaStrategy.json去读交易策略和参数，进行回测
         """
         with open(jsonpath, mode="r", encoding="UTF-8") as f:
             strategy_setting = json.load(f)
-        result_df = self.run_batch_test(strategy_setting, start_date, end_date, portfolio)
+        result_df = self.run_batch_test(strategy_setting, portfolio)
         self.result_excel(result_df, self.export_path + "CTABatch" + str(date.today()) + "v0.xlsx")
 
         trade_pairs = self.engine.generate_trade_pairs()
@@ -143,5 +144,4 @@ if __name__ == '__main__':
     print(os.getcwd())
 
     bts = BatchCTABackTest()
-    bts.run_batch_test_json(start_date=datetime(2020, 10, 1),
-                            end_date=datetime(2021, 10, 21))
+    bts.run_batch_test_json()
