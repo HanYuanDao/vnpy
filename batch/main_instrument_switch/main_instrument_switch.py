@@ -30,7 +30,7 @@ class Exchange(Enum):
 
 
 class MainInstrumentSwitch:
-    fold_path_root = "/Users/jasonhan/PyCharmProject/xqvnpy/vnpy/batch/main_instrument_switch/"
+    fold_path_root = "../"
     file_path_strategy_info = fold_path_root + "strategy_info.json"
     file_path_instrument_info = fold_path_root + "instrument_info.json"
     fold_path_export = fold_path_root + "export/"
