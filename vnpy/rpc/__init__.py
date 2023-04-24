@@ -10,7 +10,7 @@ from pathlib import Path
 
 import zmq
 import zmq.auth
-from zmq.backend.cython.constants import NOBLOCK
+from zmq import NOBLOCK
 from zmq.auth.thread import ThreadAuthenticator
 
 

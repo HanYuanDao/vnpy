@@ -105,6 +105,7 @@ class Exchange(Enum):
     BSE = "BSE"             # Beijing Stock Exchange
     SGE = "SGE"             # Shanghai Gold Exchange
     WXE = "WXE"             # Wuxi Steel Exchange
+    GFEX = "GFEX"           # Guangzhou Futures Exchange
     CFETS = "CFETS"         # CFETS Bond Market Maker Trading System
     XBOND = "XBOND"         # CFETS X-Bond Anonymous Trading System
 
