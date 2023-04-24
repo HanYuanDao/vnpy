@@ -5,19 +5,19 @@ PyQt5==5.15.2
 pyqtgraph
 qdarkstyle
 numpy==1.18.2
-pandas
-matplotlib
+pandas==1.3.4
+matplotlib==3.5.0
 seaborn
 PyCryptodome==3.9.9
 rqdatac==2.9.38
 ta-lib==0.4.17
 ibapi
 deap
-pyzmq
+pyzmq==23.0.0
 wmi
 QScintilla==2.11.4
 plotly
-exchange-calendars
+exchange-calendars==3.6.3
 psycopg2-binary
 
 vnpy_rest==1.0.3
