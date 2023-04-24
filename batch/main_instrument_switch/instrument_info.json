@@ -1,0 +1,16 @@
+{
+  "j.DCE": {
+    "rate_money": 0.0001,
+    "rate_volume": 0,
+    "slippage": 1,
+    "size": 10,
+    "pricetick": 1
+  },
+  "jm.DCE": {
+    "rate_money": 0.0001,
+    "rate_volume": 0,
+    "slippage": 1,
+    "size": 10,
+    "pricetick": 1
+  }
+}
