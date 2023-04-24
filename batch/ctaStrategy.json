@@ -5,7 +5,7 @@
     "start_dt": "2021-01-01",
     "end_dt": "2022-01-01",
     "setting": {
-
+      "const_jeton": 200000
     }
   },
   "TheBollTacticOfND_jm2305.DCE": {
@@ -14,7 +14,7 @@
     "start_dt": "2021-01-01",
     "end_dt": "2022-01-01",
     "setting": {
-
+      "const_jeton": 300000
     }
   }
 }
