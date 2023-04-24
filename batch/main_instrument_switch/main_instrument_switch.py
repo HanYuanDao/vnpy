@@ -40,7 +40,7 @@ class MainInstrumentSwitch:
         month_map = self.split_month(exchange, start_time, end_time)
         for k, v in month_map.items():
             output[self.get_instrument_id(exchange, product, k)] = [k, v]
-        return output;
+        return output
 
     def split_month(self, exchange: Exchange, start_time: datetime, end_time: datetime):
         map = {}
