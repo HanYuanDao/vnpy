@@ -118,7 +118,6 @@ class MainInstrumentSwitch:
         df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
             eval(strategy_config["class_name"]),
-            self.engine = BacktestingEngine()
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
             exchange_produce_list = strategy_config["products"]
@@ -129,6 +128,7 @@ class MainInstrumentSwitch:
                 symbol_tm_map = self.get_symbol_tm_map(exchange, produce, start_date, end_date)
 
                 for symbol, tm_arr in symbol_tm_map.items():
+                    self.engine = BacktestingEngine()
                     print("合约以及查询日期区间：" + symbol + " " + tm_arr[0].strftime('%Y%m%d') + " " + tm_arr[1].strftime('%Y%m%d'))
                     self.add_parameters(symbol + "." + exchange, symbol_flag, tm_arr[0], tm_arr[1])
                     if type(strategy_config["setting"]) is str:
@@ -158,6 +158,7 @@ class MainInstrumentSwitch:
         if portfolio is True:
             self.engine.calculate_statistics(df_portfolio)
             self.engine.show_chart(df_portfolio)
+
         return result_df
 
     def run_batch_test_json(self, portfolio=True):
