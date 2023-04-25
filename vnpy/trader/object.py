@@ -36,8 +36,8 @@ class TickData(BaseData):
     exchange: str
     datetime: datetime
 
-    # actionDay: str
-    # tradDay: str
+    actionDay: str = ""
+    tradDay: str = ""
 
     name: str = ""
     volume: float = 0

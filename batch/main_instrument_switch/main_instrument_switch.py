@@ -129,7 +129,7 @@ class MainInstrumentSwitch:
                 symbol_tm_map = self.get_symbol_tm_map(exchange, produce, start_date, end_date)
 
                 for symbol, tm_arr in symbol_tm_map.items():
-                    print("合约已经查询日期区间：" + symbol + " " + tm_arr[0].strftime('%Y%m%d') + " " + tm_arr[1].strftime('%Y%m%d'))
+                    print("合约以及查询日期区间：" + symbol + " " + tm_arr[0].strftime('%Y%m%d') + " " + tm_arr[1].strftime('%Y%m%d'))
                     self.add_parameters(symbol + "." + exchange, symbol_flag, tm_arr[0], tm_arr[1])
                     if type(strategy_config["setting"]) is str:
                         self.engine.add_strategy(
