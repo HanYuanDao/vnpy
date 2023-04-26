@@ -11,7 +11,7 @@
         "product": "jm"
       }
     ],
-    "start_dt": "2021-01-01",
+    "start_dt": "2020-01-01",
     "end_dt": "2023-01-01",
     "setting": {
       "const_jeton": 200000
