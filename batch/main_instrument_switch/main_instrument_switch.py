@@ -2,6 +2,7 @@ from datetime import datetime, date, timedelta, timezone
 from enum import Enum
 import json
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import pandas as pd
 from pandas import DataFrame
 import traceback
