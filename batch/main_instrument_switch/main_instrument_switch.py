@@ -144,7 +144,7 @@ class MainInstrumentSwitch:
                     self.engine.load_data()
                     self.engine.run_backtesting()
                     df = self.engine.calculate_result()
-                    if portfolio is True:
+                    if portfolio is True and df is not None and df.size != 0:
                         if df_portfolio is None:
                             df_portfolio = df
                         else:
