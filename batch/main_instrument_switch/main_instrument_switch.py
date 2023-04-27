@@ -118,7 +118,6 @@ class MainInstrumentSwitch:
         result_df = DataFrame()
         df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
-            eval(strategy_config["class_name"]),
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
             exchange_produce_list = strategy_config["products"]
@@ -150,7 +149,7 @@ class MainInstrumentSwitch:
                         if df_portfolio is None:
                             df_portfolio = df
                         else:
-                            df_portfolio = df_portfolio + df
+                            df_portfolio = df_portfolio.append(df, ignore_index=True)
                     result_dict = self.engine.calculate_statistics(df, False)
                     result_dict["class_name"] = strategy_config["class_name"]
                     result_dict["setting"] = strategy_config["setting"]
