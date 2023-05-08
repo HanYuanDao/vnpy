@@ -193,6 +193,7 @@ class TradeData(BaseData):
 @dataclass
 class TradePairData(BaseData):
     """"""
+    symbol: str
     open_dt: str
     open_price: float
     close_dt: str
