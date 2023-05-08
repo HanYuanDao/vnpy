@@ -39,7 +39,7 @@ class BatchCTABackTest:
                 size=self.setting[vt_symbol]["size"],
                 pricetick=self.setting[vt_symbol]["pricetick"],
                 capital=capital,
-                mode=BacktestingMode.TICK
+                mode=BacktestingMode.BAR
             )
         else:
             print("symbol %s hasn't be maintained in config file" % vt_symbol)
