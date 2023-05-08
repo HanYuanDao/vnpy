@@ -116,6 +116,7 @@ class MainInstrumentSwitch:
         进行回测
         """
         result_df = DataFrame()
+        trade_pairs = []
         df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
@@ -156,11 +157,13 @@ class MainInstrumentSwitch:
                     result_dict["vt_symbol"] = symbol
                     result_df = result_df.append(result_dict, ignore_index=True)
 
+                    trade_pairs += self.engine.generate_trade_pairs()
+
         if portfolio is True:
             self.engine.calculate_statistics(df_portfolio)
             self.engine.show_chart(df_portfolio)
 
-        return result_df
+        return result_df, trade_pairs
 
     def run_batch_test_json(self, portfolio=True):
         """
@@ -168,17 +171,65 @@ class MainInstrumentSwitch:
         """
         with open(MainInstrumentSwitch.file_path_strategy_info, mode="r", encoding="UTF-8") as f:
             strategy_setting = json.load(f)
-        result_df = self.run_batch_test(strategy_setting, portfolio)
-        self.result_excel(result_df, self.export_path + "CTABatch" + str(date.today()) + "v0.xlsx")
+        result_df, trade_pairs = self.run_batch_test(strategy_setting, portfolio)
+        result_df.rename(
+            columns={
+                'start_date': '首个交易日',
+                'end_date': '最后交易日',
+                'total_days': '总交易日',
+                'profit_days': '盈利交易日',
+                'loss_days': '亏损交易日',
+                'capital': '起始资金',
+                'end_balance': '结束资金',
+                'total_return': '总收益率',
+                'annual_return': '年化收益',
+                'max_drawdown': '最大回撤',
+                'max_ddpercent': '百分比最大回撤',
+                'max_drawdown_duration': '最长回撤天数',
+                'total_net_pnl': '总盈亏',
+                'total_commission': '总手续费',
+                'total_slippage': '总滑点',
+                'total_turnover': '总成交金额',
+                't{total_trade_count': '总成交笔数',
+                'daily_net_pnl': '日均盈亏',
+                'daily_commission': '日均手续费',
+                'daily_slippage': '日均滑点',
+                'daily_turnover': '日均成交金额',
+                't{daily_trade_count': '日均成交笔数',
+                'daily_return': '日均收益率',
+                'return_std': '收益标准差',
+                'sharpe_ratio': 'Sharpe',
+                'return_drawdown_ratio': '收益回撤比',
+                'success_rate': '交易回合胜率',
+            },
+            inplace=True
+        )
+        self.result_excel(result_df, self.export_path + "CTABatch" + str(date.today()) + "overview.xlsx")
 
-        trade_pairs = self.engine.generate_trade_pairs()
         if len(trade_pairs) != 0:
             trade_pairs_df = pd.DataFrame(trade_pairs, columns=[
+                "symbol",
                 "open_dt", "open_price", "close_dt", "close_price",
                 "direction", "volume", "profit_loss", "profit_round",
                 "trade_memo_open", "trade_memo_close", "gateway_name"])
             trade_pairs_df["open_dt"] = trade_pairs_df["open_dt"].dt.tz_localize(None)
             trade_pairs_df["close_dt"] = trade_pairs_df["close_dt"].dt.tz_localize(None)
+            trade_pairs_df.rename(
+                columns={
+                    'symbol': '合约',
+                    'open_dt': '开仓时间',
+                    'open_price': '开仓价格',
+                    'close_dt': '锁仓时间',
+                    'close_price': '锁仓价格',
+                    'direction': '方向',
+                    'volume': '手数',
+                    'profit_loss': '盈亏',
+                    'profit_round': '盈利情况',
+                    'trade_memo_open': '开仓说明',
+                    'trade_memo_close': '锁仓说明'
+                },
+                inplace=True
+            )
             self.result_excel(trade_pairs_df, self.export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
 
         return strategy_setting
