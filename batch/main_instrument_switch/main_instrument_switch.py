@@ -106,7 +106,7 @@ class MainInstrumentSwitch:
                 size=self.setting[symbol_flag]["size"],
                 pricetick=self.setting[symbol_flag]["pricetick"],
                 capital=capital,
-                mode=BacktestingMode.TICK
+                mode=BacktestingMode.BAR
             )
         else:
             print("symbol %s hasn't be maintained in config file" % vt_symbol)
