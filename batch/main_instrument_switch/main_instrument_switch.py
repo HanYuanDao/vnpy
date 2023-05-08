@@ -118,7 +118,6 @@ class MainInstrumentSwitch:
         result_df = DataFrame()
         df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
-            eval(strategy_config["class_name"]),
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
             exchange_produce_list = strategy_config["products"]
@@ -131,6 +130,7 @@ class MainInstrumentSwitch:
                 for symbol, tm_arr in symbol_tm_map.items():
                     self.engine = BacktestingEngine()
                     print("合约以及查询日期区间：" + symbol + " " + tm_arr[0].strftime('%Y%m%d') + " " + tm_arr[1].strftime('%Y%m%d'))
+                    print(strategy_config["setting"])
                     self.add_parameters(symbol + "." + exchange, symbol_flag, tm_arr[0], tm_arr[1])
                     if type(strategy_config["setting"]) is str:
                         self.engine.add_strategy(
@@ -149,7 +149,7 @@ class MainInstrumentSwitch:
                         if df_portfolio is None:
                             df_portfolio = df
                         else:
-                            df_portfolio = df_portfolio + df
+                            df_portfolio = df_portfolio.append(df, ignore_index=True)
                     result_dict = self.engine.calculate_statistics(df, False)
                     result_dict["class_name"] = strategy_config["class_name"]
                     result_dict["setting"] = strategy_config["setting"]
@@ -183,20 +183,20 @@ class MainInstrumentSwitch:
 
         return strategy_setting
 
-    def run_batch_test_excecl(self, path="ctaStrategy.xls", start_date=datetime(2019, 7, 1),
-                              end_date=datetime(2020, 1, 1), export_path=None, portfolio=False):
-        """
-        从ctaStrategy.excel去读交易策略和参数，进行回测
-        """
-        df = pd.read_excel(path)
-        strategy_setting = df.to_dict(orient='index')
-        result_df = self.run_batch_test(strategy_setting, start_date, end_date, portfolio)
-        self.result_excel(result_df, export_path + "CTABatch" + str(date.today()) + "v0.xlsx")
-
-        trade_pairs = self.engine.generate_trade_pairs()
-        self.result_excel(trade_pairs, export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
-
-        return strategy_setting
+    # def run_batch_test_excecl(self, path="ctaStrategy.xls", start_date=datetime(2019, 7, 1),
+    #                           end_date=datetime(2020, 1, 1), export_path=None, portfolio=False):
+    #     """
+    #     从ctaStrategy.excel去读交易策略和参数，进行回测
+    #     """
+    #     df = pd.read_excel(path)
+    #     strategy_setting = df.to_dict(orient='index')
+    #     result_df = self.run_batch_test(strategy_setting, start_date, end_date, portfolio)
+    #     self.result_excel(result_df, export_path + "CTABatch" + str(date.today()) + "v0.xlsx")
+    #
+    #     trade_pairs = self.engine.generate_trade_pairs()
+    #     self.result_excel(trade_pairs, export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
+    #
+    #     return strategy_setting
 
     def result_excel(self, result, export):
         """
