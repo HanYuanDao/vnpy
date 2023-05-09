@@ -90,7 +90,7 @@ class MainInstrumentSwitch:
         self.export_path = MainInstrumentSwitch.fold_path_export
         self.engine = None
 
-    def add_parameters(self, vt_symbol: str, symbol_flag: str, start_date, end_date, interval="1_minute", capital=1_000_000):
+    def add_parameters(self, vt_symbol: str, symbol_flag: str, start_date, end_date, interval="1_minute"):
         """
         从vtSymbol.json文档读取品种的交易属性，比如费率，交易每跳，比率，滑点
         """
@@ -105,7 +105,7 @@ class MainInstrumentSwitch:
                 slippage=self.setting[symbol_flag]["slippage"],
                 size=self.setting[symbol_flag]["size"],
                 pricetick=self.setting[symbol_flag]["pricetick"],
-                capital=capital,
+                capital=self.setting[symbol_flag]["capital"],
                 mode=BacktestingMode.BAR
             )
         else:
