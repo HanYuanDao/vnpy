@@ -163,7 +163,7 @@ class CandleItem(ChartItem):
         candle_picture = QtGui.QPicture()
         painter = QtGui.QPainter(candle_picture)
 
-        if isinstance(bar, BarData):
+        if isinstance(bar, TickData):
             bar.open_price = bar.ask_price_1
             bar.high_price = bar.ask_price_5
             bar.low_price = bar.bid_price_5
@@ -229,7 +229,7 @@ class CandleItem(ChartItem):
         """
         bar = self._manager.get_bar(ix)
 
-        if isinstance(bar, BarData):
+        if isinstance(bar, TickData):
             bar.open_price = bar.ask_price_1
             bar.high_price = bar.ask_price_5
             bar.low_price = bar.bid_price_5
