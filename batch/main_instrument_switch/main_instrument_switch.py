@@ -161,7 +161,7 @@ class MainInstrumentSwitch:
 
         if portfolio is True:
             self.engine.calculate_statistics(df_portfolio)
-            self.engine.show_chart(df_portfolio)
+            # self.engine.show_chart(df_portfolio)
 
         return result_df, trade_pairs
 
