@@ -266,7 +266,6 @@ class MainInstrumentSwitch:
 
         return None
 
-
 if __name__ == '__main__':
     print(os.getcwd())
     bts = MainInstrumentSwitch()
