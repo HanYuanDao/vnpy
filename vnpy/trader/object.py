@@ -115,6 +115,11 @@ class BarData(BaseData):
     low_price: float = 0
     close_price: float = 0
 
+    upper_limit_price: float = 0
+    highest_price: float = 0
+    lowest_price: float = 0
+    lower_limit_price: float = 0
+
     def __post_init__(self):
         """"""
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
