@@ -116,8 +116,8 @@ class MainInstrumentSwitch:
         进行回测
         """
         result_df = DataFrame()
+        net_pnl_df = None
         trade_pairs = []
-        df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
@@ -146,11 +146,11 @@ class MainInstrumentSwitch:
                     self.engine.load_data()
                     self.engine.run_backtesting()
                     df = self.engine.calculate_result()
-                    if portfolio is True and df is not None and df.size != 0:
-                        if df_portfolio is None:
-                            df_portfolio = df
+                    if df is not None and df.size != 0:
+                        if net_pnl_df is None:
+                            net_pnl_df = df
                         else:
-                            df_portfolio = df_portfolio.append(df, ignore_index=True)
+                            net_pnl_df = pd.concat([net_pnl_df, df])
                     result_dict = self.engine.calculate_statistics(df, False)
                     result_dict["class_name"] = strategy_config["class_name"]
                     result_dict["setting"] = strategy_config["setting"]
@@ -159,11 +159,23 @@ class MainInstrumentSwitch:
 
                     trade_pairs += self.engine.generate_trade_pairs()
 
-        if portfolio is True:
-            self.engine.calculate_statistics(df_portfolio)
-            # self.engine.show_chart(df_portfolio)
+        # if portfolio is True:
+        #     self.engine.calculate_statistics(df_portfolio)
+        #     self.engine.show_chart(df_portfolio)
+        reduce = {
+            'commission': ['min', 'max', 'sum'],
+            'slippage': ['min', 'max', 'sum'],
+            'trading_pnl': ['min', 'max', 'sum'],
+            'holding_pnl': ['min', 'max', 'sum'],
+            'total_pnl': ['min', 'max', 'sum'],
+            'net_pnl': ['min', 'max', 'sum'],
+            'trade_count': ['min', 'max', 'sum'],
+            'turnover': ['min', 'max', 'sum'],
+        }
 
-        return result_df, trade_pairs
+        net_pnl_group_df = net_pnl_df.groupby(['date']).agg(reduce)
+
+        return result_df, trade_pairs, net_pnl_df, net_pnl_group_df
 
     def run_batch_test_json(self, portfolio=True):
         """
@@ -171,7 +183,7 @@ class MainInstrumentSwitch:
         """
         with open(MainInstrumentSwitch.file_path_strategy_info, mode="r", encoding="UTF-8") as f:
             strategy_setting = json.load(f)
-        result_df, trade_pairs = self.run_batch_test(strategy_setting, portfolio)
+        result_df, trade_pairs, net_pnl_df, net_pnl_group_df = self.run_batch_test(strategy_setting, portfolio)
         result_df.rename(
             columns={
                 'start_date': '首个交易日',
@@ -232,6 +244,10 @@ class MainInstrumentSwitch:
             )
             self.result_excel(trade_pairs_df, self.export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
 
+        self.result_excel(net_pnl_df, self.export_path + "CTABatch" + str(date.today()) + "daily.xlsx")
+
+        self.result_excel(net_pnl_group_df, self.export_path + "CTABatch" + str(date.today()) + "daily_group.xlsx")
+
         return strategy_setting
 
     # def run_batch_test_excecl(self, path="ctaStrategy.xls", start_date=datetime(2019, 7, 1),
@@ -259,12 +275,13 @@ class MainInstrumentSwitch:
             export_path = self.export_path + "CTABatch" + str(date.today()) + "v0.xlsx"
 
         try:
-            result.to_excel(export_path, index=False)
+            result.to_excel(export_path, index=True)
             print("CTA Batch result is export to %s" % export_path)
         except:
             print(traceback.format_exc())
 
         return None
+
 
 if __name__ == '__main__':
     print(os.getcwd())
