@@ -285,6 +285,8 @@ class ContractData(BaseData):
     product: Product
     size: float
     pricetick: float
+    long_margin_ratio: float
+    short_margin_ratio: float
 
     min_volume: float = 1           # minimum trading volume of the contract
     stop_supported: bool = False    # whether server supports stop order
