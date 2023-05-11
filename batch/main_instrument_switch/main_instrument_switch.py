@@ -2,6 +2,9 @@ from datetime import datetime, date, timedelta, timezone
 from enum import Enum
 import json
 import os
+
+import numpy as np
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import pandas as pd
 from pandas import DataFrame
@@ -31,7 +34,7 @@ class Exchange(Enum):
 
 
 class MainInstrumentSwitch:
-    fold_path_root = "./"
+    fold_path_root = "./"   # fold_path_root = "./main_instrument_switch/"
     file_path_strategy_info = fold_path_root + "strategy_info.json"
     file_path_instrument_info = fold_path_root + "instrument_info.json"
     fold_path_export = fold_path_root + "export/"
@@ -90,7 +93,7 @@ class MainInstrumentSwitch:
         self.export_path = MainInstrumentSwitch.fold_path_export
         self.engine = None
 
-    def add_parameters(self, vt_symbol: str, symbol_flag: str, start_date, end_date, interval="1_minute", capital=1_000_000):
+    def add_parameters(self, vt_symbol: str, symbol_flag: str, start_date, end_date, interval="1_minute"):
         """
         从vtSymbol.json文档读取品种的交易属性，比如费率，交易每跳，比率，滑点
         """
@@ -105,7 +108,8 @@ class MainInstrumentSwitch:
                 slippage=self.setting[symbol_flag]["slippage"],
                 size=self.setting[symbol_flag]["size"],
                 pricetick=self.setting[symbol_flag]["pricetick"],
-                capital=capital,
+                margin_ratio=self.setting[symbol_flag]["margin_ratio"],
+                capital=self.setting[symbol_flag]["capital"],
                 mode=BacktestingMode.BAR
             )
         else:
@@ -116,8 +120,8 @@ class MainInstrumentSwitch:
         进行回测
         """
         result_df = DataFrame()
+        net_pnl_df = None
         trade_pairs = []
-        df_portfolio = None
         for strategy_name, strategy_config in strategy_setting.items():
             start_date = datetime.strptime(strategy_config["start_dt"], '%Y-%m-%d')
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
@@ -146,11 +150,11 @@ class MainInstrumentSwitch:
                     self.engine.load_data()
                     self.engine.run_backtesting()
                     df = self.engine.calculate_result()
-                    if portfolio is True and df is not None and df.size != 0:
-                        if df_portfolio is None:
-                            df_portfolio = df
+                    if df is not None and df.size != 0:
+                        if net_pnl_df is None:
+                            net_pnl_df = df
                         else:
-                            df_portfolio = df_portfolio.append(df, ignore_index=True)
+                            net_pnl_df = pd.concat([net_pnl_df, df])
                     result_dict = self.engine.calculate_statistics(df, False)
                     result_dict["class_name"] = strategy_config["class_name"]
                     result_dict["setting"] = strategy_config["setting"]
@@ -159,11 +163,34 @@ class MainInstrumentSwitch:
 
                     trade_pairs += self.engine.generate_trade_pairs()
 
-        if portfolio is True:
-            self.engine.calculate_statistics(df_portfolio)
-            self.engine.show_chart(df_portfolio)
+        # if portfolio is True:
+        #     self.engine.calculate_statistics(df_portfolio)
+        #     self.engine.show_chart(df_portfolio)
+        reduce = {
+            'commission': ['min', 'max', 'sum'],
+            'slippage': ['min', 'max', 'sum'],
+            'trading_pnl': ['min', 'max', 'sum'],
+            'holding_pnl': ['min', 'max', 'sum'],
+            'total_pnl': ['min', 'max', 'sum'],
+            'net_pnl': ['min', 'max', 'sum'],
+            'trade_count': ['min', 'max', 'sum'],
+            'turnover': ['min', 'max', 'sum'],
+        }
 
-        return result_df, trade_pairs
+        net_pnl_df_pos = net_pnl_df.groupby("date").apply(self.show_stop_pos)
+        net_pnl_group_df = net_pnl_df.groupby(['date']).agg(reduce)
+        net_pnl_group_df = pd.concat([net_pnl_group_df, net_pnl_df_pos], axis=1)
+        net_pnl_group_df.columns.array[-1] = 'pos'
+
+        return result_df, trade_pairs, net_pnl_df, net_pnl_group_df
+
+    def show_stop_pos(self, a: DataFrame):
+        symbol_pos_list = {}
+        for index, row in a.iterrows():
+            if symbol_pos_list.get(row.get('symbol')) is None:
+                symbol_pos_list[row.get('symbol')] = 0
+            symbol_pos_list[row.get('symbol')] += abs(int(row.get('end_pos')))
+        return symbol_pos_list
 
     def run_batch_test_json(self, portfolio=True):
         """
@@ -171,7 +198,7 @@ class MainInstrumentSwitch:
         """
         with open(MainInstrumentSwitch.file_path_strategy_info, mode="r", encoding="UTF-8") as f:
             strategy_setting = json.load(f)
-        result_df, trade_pairs = self.run_batch_test(strategy_setting, portfolio)
+        result_df, trade_pairs, net_pnl_df, net_pnl_group_df = self.run_batch_test(strategy_setting, portfolio)
         result_df.rename(
             columns={
                 'start_date': '首个交易日',
@@ -232,6 +259,10 @@ class MainInstrumentSwitch:
             )
             self.result_excel(trade_pairs_df, self.export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
 
+        self.result_excel(net_pnl_df, self.export_path + "CTABatch" + str(date.today()) + "daily.xlsx")
+
+        self.result_excel(net_pnl_group_df, self.export_path + "CTABatch" + str(date.today()) + "daily_group.xlsx")
+
         return strategy_setting
 
     # def run_batch_test_excecl(self, path="ctaStrategy.xls", start_date=datetime(2019, 7, 1),
@@ -259,7 +290,7 @@ class MainInstrumentSwitch:
             export_path = self.export_path + "CTABatch" + str(date.today()) + "v0.xlsx"
 
         try:
-            result.to_excel(export_path, index=False)
+            result.to_excel(export_path, index=True)
             print("CTA Batch result is export to %s" % export_path)
         except:
             print(traceback.format_exc())

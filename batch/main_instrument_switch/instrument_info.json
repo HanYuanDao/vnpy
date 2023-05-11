@@ -1,6 +1,7 @@
 {
   "j.DCE": {
     "capital": 5000000,
+    "margin_ratio": 0.15,
     "rate_money": 0.0001,
     "rate_volume": 0.05,
     "slippage": 0,
@@ -9,6 +10,7 @@
   },
   "jm.DCE": {
     "capital": 5000000,
+    "margin_ratio": 0.15,
     "rate_money": 0.0001,
     "rate_volume": 0.05,
     "slippage": 0,
