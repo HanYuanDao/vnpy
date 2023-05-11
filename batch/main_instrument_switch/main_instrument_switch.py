@@ -108,6 +108,7 @@ class MainInstrumentSwitch:
                 slippage=self.setting[symbol_flag]["slippage"],
                 size=self.setting[symbol_flag]["size"],
                 pricetick=self.setting[symbol_flag]["pricetick"],
+                margin_ratio=self.setting[symbol_flag]["margin_ratio"],
                 capital=self.setting[symbol_flag]["capital"],
                 mode=BacktestingMode.BAR
             )
@@ -186,11 +187,9 @@ class MainInstrumentSwitch:
     def show_stop_pos(self, a: DataFrame):
         symbol_pos_list = {}
         for index, row in a.iterrows():
-            print(row)
             if symbol_pos_list.get(row.get('symbol')) is None:
                 symbol_pos_list[row.get('symbol')] = 0
             symbol_pos_list[row.get('symbol')] += abs(int(row.get('end_pos')))
-        print("-----")
         return symbol_pos_list
 
     def run_batch_test_json(self, portfolio=True):
