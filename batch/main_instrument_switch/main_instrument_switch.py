@@ -2,6 +2,9 @@ from datetime import datetime, date, timedelta, timezone
 from enum import Enum
 import json
 import os
+
+import numpy as np
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import pandas as pd
 from pandas import DataFrame
@@ -173,9 +176,22 @@ class MainInstrumentSwitch:
             'turnover': ['min', 'max', 'sum'],
         }
 
+        net_pnl_df_pos = net_pnl_df.groupby("date").apply(self.show_stop_pos)
         net_pnl_group_df = net_pnl_df.groupby(['date']).agg(reduce)
+        net_pnl_group_df = pd.concat([net_pnl_group_df, net_pnl_df_pos], axis=1)
+        net_pnl_group_df.columns.array[-1] = 'pos'
 
         return result_df, trade_pairs, net_pnl_df, net_pnl_group_df
+
+    def show_stop_pos(self, a: DataFrame):
+        symbol_pos_list = {}
+        for index, row in a.iterrows():
+            print(row)
+            if symbol_pos_list.get(row.get('symbol')) is None:
+                symbol_pos_list[row.get('symbol')] = 0
+            symbol_pos_list[row.get('symbol')] += abs(int(row.get('end_pos')))
+        print("-----")
+        return symbol_pos_list
 
     def run_batch_test_json(self, portfolio=True):
         """
