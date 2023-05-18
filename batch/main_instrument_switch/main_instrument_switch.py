@@ -134,9 +134,11 @@ class MainInstrumentSwitch:
 
                 for symbol, tm_arr in symbol_tm_map.items():
                     self.engine = BacktestingEngine()
-                    print("合约以及查询日期区间：" + symbol + " " + tm_arr[0].strftime('%Y%m%d') + " " + tm_arr[1].strftime('%Y%m%d'))
+                     = tm_arr[0] - timedelta(days=5)
+                    et = tm_arr[1]
+                    print("合约以及查询日期区间：" + symbol + " " + st.strftime('%Y%m%d') + " " + et.strftime('%Y%m%d'))
                     print(strategy_config["setting"])
-                    self.add_parameters(symbol + "." + exchange, symbol_flag, tm_arr[0], tm_arr[1])
+                    self.add_parameters(symbol + "." + exchange, symbol_flag, st, et)
                     if type(strategy_config["setting"]) is str:
                         self.engine.add_strategy(
                             eval(strategy_config["class_name"]),
