@@ -134,7 +134,7 @@ class MainInstrumentSwitch:
 
                 for symbol, tm_arr in symbol_tm_map.items():
                     self.engine = BacktestingEngine()
-                     = tm_arr[0] - timedelta(days=5)
+                    st = tm_arr[0] - timedelta(days=5)
                     et = tm_arr[1]
                     print("合约以及查询日期区间：" + symbol + " " + st.strftime('%Y%m%d') + " " + et.strftime('%Y%m%d'))
                     print(strategy_config["setting"])
