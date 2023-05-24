@@ -61,7 +61,7 @@ class MainInstrumentSwitch:
     def get_main_month(self, exchange: Exchange, tm: datetime) -> datetime:
         mouth = tm.month
         main_time = tm.replace(day=1)
-        if exchange in [Exchange.SHFE, Exchange.INE]:
+        if Exchange.SHFE.__eq__(exchange) or Exchange.INE.__eq__(exchange):
             if mouth != 12:
                 main_time = main_time.replace(month=(main_time.month + 1))
             else:
@@ -78,7 +78,7 @@ class MainInstrumentSwitch:
     def get_instrument_id(self, exchange: Exchange, product: str, trade_time: datetime) -> str:
         trade_time = self.get_main_month(exchange, trade_time)
 
-        if exchange == Exchange.CZCE:
+        if Exchange.CZCE.__eq__(exchange):
             tm_str = trade_time.strftime('%Y%m')[3:6]
         else:
             tm_str = trade_time.strftime('%Y%m')[2:6]
@@ -134,7 +134,7 @@ class MainInstrumentSwitch:
 
                 for symbol, tm_arr in symbol_tm_map.items():
                     self.engine = BacktestingEngine()
-                    st = tm_arr[0] - timedelta(days=5)
+                    st = tm_arr[0] - timedelta(days=self.pre_load_day)
                     et = tm_arr[1]
                     print("合约以及查询日期区间：" + symbol + " " + st.strftime('%Y%m%d') + " " + et.strftime('%Y%m%d'))
                     print(strategy_config["setting"])
