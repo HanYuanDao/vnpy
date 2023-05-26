@@ -389,6 +389,9 @@ class TickLineItem(ChartItem):
         """
         tick = self._manager.get_bar(ix)
 
+        if tick is None:
+            return ""
+
         ask_total_volume = tick.ask_volume_1+tick.ask_volume_2+tick.ask_volume_3+tick.ask_volume_4+tick.ask_volume_5
         bid_total_volume = tick.bid_volume_1+tick.bid_volume_2+tick.bid_volume_3+tick.bid_volume_4+tick.bid_volume_5
 
