@@ -34,6 +34,7 @@ class Exchange(Enum):
 
 
 class MainInstrumentSwitch:
+    pre_load_day = 5
     fold_path_root = "./"   # fold_path_root = "./main_instrument_switch/"
     file_path_strategy_info = fold_path_root + "strategy_info.json"
     file_path_instrument_info = fold_path_root + "instrument_info.json"
