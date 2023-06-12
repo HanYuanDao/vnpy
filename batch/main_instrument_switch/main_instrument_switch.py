@@ -62,7 +62,7 @@ class MainInstrumentSwitch:
     def get_main_month(self, exchange: Exchange, tm: datetime) -> datetime:
         mouth = tm.month
         main_time = tm.replace(day=1)
-        if Exchange.SHFE.__eq__(exchange) or Exchange.INE.__eq__(exchange):
+        if Exchange.SHFE == exchange or Exchange.INE == exchange:
             if mouth != 12:
                 main_time = main_time.replace(month=(main_time.month + 1))
             else:
@@ -79,7 +79,7 @@ class MainInstrumentSwitch:
     def get_instrument_id(self, exchange: Exchange, product: str, trade_time: datetime) -> str:
         trade_time = self.get_main_month(exchange, trade_time)
 
-        if Exchange.CZCE.__eq__(exchange):
+        if Exchange.CZCE == exchange:
             tm_str = trade_time.strftime('%Y%m')[3:6]
         else:
             tm_str = trade_time.strftime('%Y%m')[2:6]
@@ -128,9 +128,9 @@ class MainInstrumentSwitch:
             end_date = datetime.strptime(strategy_config["end_dt"], '%Y-%m-%d') + timedelta(days=1)
             exchange_produce_list = strategy_config["products"]
             for exchange_produce in exchange_produce_list:
-                exchange = exchange_produce["exchange"]
+                exchange = Exchange[exchange_produce["exchange"]]
                 produce = exchange_produce["product"]
-                symbol_flag = produce + "." + exchange
+                symbol_flag = produce + "." + exchange.value
                 symbol_tm_map = self.get_symbol_tm_map(exchange, produce, start_date, end_date)
 
                 for symbol, tm_arr in symbol_tm_map.items():
@@ -139,7 +139,7 @@ class MainInstrumentSwitch:
                     et = tm_arr[1]
                     print("合约以及查询日期区间：" + symbol + " " + st.strftime('%Y%m%d') + " " + et.strftime('%Y%m%d'))
                     print(strategy_config["setting"])
-                    self.add_parameters(symbol + "." + exchange, symbol_flag, st, et)
+                    self.add_parameters(symbol + "." + exchange.value, symbol_flag, st, et)
                     if type(strategy_config["setting"]) is str:
                         self.engine.add_strategy(
                             eval(strategy_config["class_name"]),
