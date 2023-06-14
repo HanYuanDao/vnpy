@@ -39,6 +39,7 @@ class MainInstrumentSwitch:
     file_path_strategy_info = fold_path_root + "strategy_info.json"
     file_path_instrument_info = fold_path_root + "instrument_info.json"
     fold_path_export = fold_path_root + "export/"
+    fold_name_export = fold_path_export + datetime.now().strftime('%y-%m-%d %H:%M:%S') + ".xlsx"
 
     def get_symbol_tm_map(self, exchange: Exchange, product: str, start_time: datetime, end_time: datetime):
         output = {}
@@ -180,10 +181,12 @@ class MainInstrumentSwitch:
             'turnover': ['min', 'max', 'sum'],
         }
 
-        net_pnl_df_pos = net_pnl_df.groupby("date").apply(self.show_stop_pos)
-        net_pnl_group_df = net_pnl_df.groupby(['date']).agg(reduce)
-        net_pnl_group_df = pd.concat([net_pnl_group_df, net_pnl_df_pos], axis=1)
-        net_pnl_group_df.columns.array[-1] = 'pos'
+        net_pnl_group_df = None
+        if net_pnl_df is not None:
+            net_pnl_df_pos = net_pnl_df.groupby("date").apply(self.show_stop_pos)
+            net_pnl_group_df = net_pnl_df.groupby(['date']).agg(reduce)
+            net_pnl_group_df = pd.concat([net_pnl_group_df, net_pnl_df_pos], axis=1)
+            net_pnl_group_df.columns.array[-1] = 'pos'
 
         return result_df, trade_pairs, net_pnl_df, net_pnl_group_df
 
@@ -202,41 +205,42 @@ class MainInstrumentSwitch:
         with open(MainInstrumentSwitch.file_path_strategy_info, mode="r", encoding="UTF-8") as f:
             strategy_setting = json.load(f)
         result_df, trade_pairs, net_pnl_df, net_pnl_group_df = self.run_batch_test(strategy_setting, portfolio)
-        result_df.rename(
-            columns={
-                'start_date': '首个交易日',
-                'end_date': '最后交易日',
-                'total_days': '总交易日',
-                'profit_days': '盈利交易日',
-                'loss_days': '亏损交易日',
-                'capital': '起始资金',
-                'end_balance': '结束资金',
-                'total_return': '总收益率',
-                'annual_return': '年化收益',
-                'max_drawdown': '最大回撤',
-                'max_ddpercent': '百分比最大回撤',
-                'max_drawdown_duration': '最长回撤天数',
-                'total_net_pnl': '总盈亏',
-                'total_commission': '总手续费',
-                'total_slippage': '总滑点',
-                'total_turnover': '总成交金额',
-                't{total_trade_count': '总成交笔数',
-                'daily_net_pnl': '日均盈亏',
-                'daily_commission': '日均手续费',
-                'daily_slippage': '日均滑点',
-                'daily_turnover': '日均成交金额',
-                't{daily_trade_count': '日均成交笔数',
-                'daily_return': '日均收益率',
-                'return_std': '收益标准差',
-                'sharpe_ratio': 'Sharpe',
-                'return_drawdown_ratio': '收益回撤比',
-                'success_rate': '交易回合胜率',
-            },
-            inplace=True
-        )
-        self.result_excel(result_df, self.export_path + "CTABatch" + str(date.today()) + "overview.xlsx")
+        if result_df is not None:
+            result_df.rename(
+                columns={
+                    'start_date': '首个交易日',
+                    'end_date': '最后交易日',
+                    'total_days': '总交易日',
+                    'profit_days': '盈利交易日',
+                    'loss_days': '亏损交易日',
+                    'capital': '起始资金',
+                    'end_balance': '结束资金',
+                    'total_return': '总收益率',
+                    'annual_return': '年化收益',
+                    'max_drawdown': '最大回撤',
+                    'max_ddpercent': '百分比最大回撤',
+                    'max_drawdown_duration': '最长回撤天数',
+                    'total_net_pnl': '总盈亏',
+                    'total_commission': '总手续费',
+                    'total_slippage': '总滑点',
+                    'total_turnover': '总成交金额',
+                    't{total_trade_count': '总成交笔数',
+                    'daily_net_pnl': '日均盈亏',
+                    'daily_commission': '日均手续费',
+                    'daily_slippage': '日均滑点',
+                    'daily_turnover': '日均成交金额',
+                    't{daily_trade_count': '日均成交笔数',
+                    'daily_return': '日均收益率',
+                    'return_std': '收益标准差',
+                    'sharpe_ratio': 'Sharpe',
+                    'return_drawdown_ratio': '收益回撤比',
+                    'success_rate': '交易回合胜率',
+                },
+                inplace=True
+            )
+            self.result_excel(result_df, "overview")
 
-        if len(trade_pairs) != 0:
+        if trade_pairs is not None and len(trade_pairs) != 0:
             trade_pairs_df = pd.DataFrame(trade_pairs, columns=[
                 "symbol",
                 "open_dt", "open_price", "close_dt", "close_price",
@@ -260,11 +264,13 @@ class MainInstrumentSwitch:
                 },
                 inplace=True
             )
-            self.result_excel(trade_pairs_df, self.export_path + "CTABatch" + str(date.today()) + "v1.xlsx")
+            self.result_excel(trade_pairs_df, "trade_pairs")
 
-        self.result_excel(net_pnl_df, self.export_path + "CTABatch" + str(date.today()) + "daily.xlsx")
+        if net_pnl_df is not None:
+            self.result_excel(net_pnl_df, "daily")
 
-        self.result_excel(net_pnl_group_df, self.export_path + "CTABatch" + str(date.today()) + "daily_group.xlsx")
+        if net_pnl_group_df is not None:
+            self.result_excel(net_pnl_group_df, "daily_group")
 
         return strategy_setting
 
@@ -283,18 +289,23 @@ class MainInstrumentSwitch:
     #
     #     return strategy_setting
 
-    def result_excel(self, result, export):
+    def result_excel(self, result, sheet_nm):
         """
         输出交易结果到excel
         """
-        if export is not None:
-            export_path = export
+        if sheet_nm is not None:
+            sn = sheet_nm
         else:
-            export_path = self.export_path + "CTABatch" + str(date.today()) + "v0.xlsx"
+            sn = "sheet"
 
         try:
-            result.to_excel(export_path, index=True)
-            print("CTA Batch result is export to %s" % export_path)
+            if os.path.exists(self.fold_name_export):
+                with pd.ExcelWriter(self.fold_name_export, mode='a', engine='openpyxl') as writer:
+                    result.to_excel(writer, sheet_name=sn, index=True)
+            else:
+                with pd.ExcelWriter(self.fold_name_export, engine='openpyxl') as writer:
+                    result.to_excel(writer, sheet_name=sn, index=True)
+            print("CTA Batch result is export to %s, sheet_name is %s" % (self.fold_name_export, sn))
         except:
             print(traceback.format_exc())
 
