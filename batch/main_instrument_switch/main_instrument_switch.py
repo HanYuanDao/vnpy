@@ -39,7 +39,7 @@ class MainInstrumentSwitch:
     file_path_strategy_info = fold_path_root + "strategy_info.json"
     file_path_instrument_info = fold_path_root + "instrument_info.json"
     fold_path_export = fold_path_root + "export/"
-    fold_name_export = fold_path_export + datetime.now().strftime('%y-%m-%d %H:%M:%S') + ".xlsx"
+    fold_name_export = fold_path_export + "CTA_RESULT_" + datetime.now().strftime('%y-%m-%d %H:%M:%S') + ".xlsx"
 
     def get_symbol_tm_map(self, exchange: Exchange, product: str, start_time: datetime, end_time: datetime):
         output = {}
