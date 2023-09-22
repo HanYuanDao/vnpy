@@ -96,6 +96,7 @@ class TickData(BaseData):
             if k in inspect.signature(cls).parameters
         })
 
+
 @dataclass
 class BarData(BaseData):
     """

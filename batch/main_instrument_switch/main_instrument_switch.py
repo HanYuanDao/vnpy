@@ -10,7 +10,7 @@ import pandas as pd
 from pandas import DataFrame
 import traceback
 from vnpy_ctastrategy.backtesting import BacktestingEngine
-from vnpy_ctastrategy.strategies.the_boll_tactic_of_nd import TheBollTacticOfND
+from vnpy_ctastrategy.strategies.double_k_strategy_wmn import DoubleKStrategyWMN
 from vnpy_ctastrategy.base import BacktestingMode
 
 
@@ -35,11 +35,14 @@ class Exchange(Enum):
 
 class MainInstrumentSwitch:
     pre_load_day = 5
-    fold_path_root = "./"   # fold_path_root = "./main_instrument_switch/"
-    file_path_strategy_info = fold_path_root + "strategy_info.json"
-    file_path_instrument_info = fold_path_root + "instrument_info.json"
-    fold_path_export = fold_path_root + "export/"
-    fold_name_export = fold_path_export + "CTA_RESULT_" + datetime.now().strftime('%y-%m-%d %H:%M:%S') + ".xlsx"
+    # fold_path_root = "./"
+    fold_path_root = "./main_instrument_switch/"
+    fold_strategy_name = "wmn"
+    file_path_strategy_info = fold_path_root + fold_strategy_name + "/" + "strategy_info.json"
+    file_path_instrument_info = fold_path_root + fold_strategy_name + "/" + "instrument_info.json"
+    fold_path_export = fold_path_root + fold_strategy_name + "/" + "export/"
+    fold_name_export = (fold_path_export +
+                        "CTA_RESULT_" + datetime.now().strftime('%y-%m-%d %H:%M:%S') + ".xlsx")
 
     def get_symbol_tm_map(self, exchange: Exchange, product: str, start_time: datetime, end_time: datetime):
         output = {}
@@ -299,11 +302,14 @@ class MainInstrumentSwitch:
             sn = "sheet"
 
         try:
+            if not os.path.exists(self.fold_path_export):
+                os.makedirs(self.fold_path_export)
+
             if os.path.exists(self.fold_name_export):
                 with pd.ExcelWriter(self.fold_name_export, mode='a', engine='openpyxl') as writer:
                     result.to_excel(writer, sheet_name=sn, index=True)
             else:
-                with pd.ExcelWriter(self.fold_name_export, engine='openpyxl') as writer:
+                with pd.ExcelWriter(self.fold_name_export, mode='w', engine='openpyxl') as writer:
                     result.to_excel(writer, sheet_name=sn, index=True)
             print("CTA Batch result is export to %s, sheet_name is %s" % (self.fold_name_export, sn))
         except:
