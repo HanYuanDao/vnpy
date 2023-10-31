@@ -9,7 +9,7 @@ pandas==1.3.4
 matplotlib==3.5.0
 seaborn
 PyCryptodome==3.9.9
-rqdatac==2.9.38
+rqdatac==2.9.39.3
 ta-lib==0.4.17
 ibapi
 deap
