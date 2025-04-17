@@ -22,11 +22,24 @@ function ta-lib-exists()
 ta-lib-exists || install-ta-lib
 
 # install ta-lib
-$python -m pip install numpy==1.23.1 --index $pypi_index
-$python -m pip install ta-lib==0.4.24 --index $pypi_index
-
-# Install Python Modules
-$python -m pip install -r requirements.txt --index $pypi_index
+$python -m pip install numpy==2.2.4 --index $pypi_index
+$python -m pip install ta-lib==0.6.3 --index $pypi_index
 
 # Install VeighNa
-$python -m pip install . --index $pypi_index
+#$python -m pip install . --index $pypi_index
+
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag6771#egg=vnpy_ctp
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_algotrading.git@tag107#egg=vnpy_algotrading
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_chartwizard.git@tag104#egg=vnpy_chartwizard
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag116#egg=vnpy_ctabacktester
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctastrategy.git@tag131#egg=vnpy_ctastrategy
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_datamanager.git@tag111#egg=vnpy_datamanager
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_optionmaster.git@tag110#egg=vnpy_optionmaster
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_paperaccount.git@tag106#egg=vnpy_paperaccount
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_portfoliomanager.git@tag103#egg=vnpy_portfoliomanager
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_portfoliostrategy.git@tag111#egg=vnpy_portfoliostrategy
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_riskmanager.git@tag104#egg=vnpy_riskmanager
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_rpcservice.git@tag106#egg=vnpy_rpcservice
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_scripttrader.git@tag102#egg=vnpy_scripttrader
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_spreadtrading.git@tag125#egg=vnpy_spreadtrading
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_webtrader.git@tag105#egg=vnpy_webtrader
