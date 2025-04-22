@@ -28,7 +28,7 @@ $python -m pip install ta-lib==0.6.3 --index $pypi_index
 # Install VeighNa
 #$python -m pip install . --index $pypi_index
 
-$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag6771#egg=vnpy_ctp
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctp.git@tag6770#egg=vnpy_ctp
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_algotrading.git@tag107#egg=vnpy_algotrading
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_chartwizard.git@tag104#egg=vnpy_chartwizard
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_ctabacktester.git@tag116#egg=vnpy_ctabacktester
