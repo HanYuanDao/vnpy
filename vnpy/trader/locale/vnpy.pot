@@ -228,7 +228,7 @@ msgid "遗传算法优化完成，耗时{}秒"
 msgstr ""
 
 #: vnpy\trader\ui\mainwindow.py:47
-msgid "VeighNa Trader 社区版 - {}   [{}]"
+msgid "XinQi Quantitative Trader - {}   [{}]"
 msgstr ""
 
 #: vnpy\trader\ui\mainwindow.py:65
