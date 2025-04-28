@@ -241,6 +241,8 @@ class ContractData(BaseData):
     product: Product
     size: float
     pricetick: float
+    long_margin_ratio: float
+    short_margin_ratio: float
 
     min_volume: float = 1                   # minimum order volume
     max_volume: float | None = None      # maximum order volume
