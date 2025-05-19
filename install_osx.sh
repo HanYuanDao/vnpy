@@ -44,3 +44,4 @@ $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_rpcservice.git@
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_scripttrader.git@tag102#egg=vnpy_scripttrader
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_spreadtrading.git@tag125#egg=vnpy_spreadtrading
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_webtrader.git@tag105#egg=vnpy_webtrader
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mini.git@tag001#egg=vnpy_mini
