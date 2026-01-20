@@ -1,9 +1,18 @@
-import sys; print(sys.executable)
+import sys
+
+from vnpy_mongodb.mongodb_database import MongodbDatabase
+
+print("exe:", sys.executable)
+print("sys.path[0:6]:", sys.path[:6])
+
+import vnpy_ctp
+print("vnpy_ctp from:", vnpy_ctp.__file__)
 
 from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
 from vnpy_ctp import CtpGateway
+from vnpy_ctp import VtpGateway
 
 from vnpy_algotrading import AlgoTradingApp
 from vnpy_chartwizard import ChartWizardApp
@@ -21,6 +30,7 @@ from vnpy_rpcservice import RpcServiceApp
 from vnpy_scripttrader import ScriptTraderApp
 from vnpy_spreadtrading import SpreadTradingApp
 from vnpy_webtrader import WebTraderApp
+from vnpy_mongodb import Database as MongodbDatabase
 
 
 def main():
@@ -49,6 +59,7 @@ def main():
     main_engine.add_app(ScriptTraderApp)
     main_engine.add_app(SpreadTradingApp)
     main_engine.add_app(WebTraderApp)
+    # main_engine.add_app(MongodbDatabase)
 
     main_window = MainWindow(main_engine, event_engine)
     main_window.showMaximized()
