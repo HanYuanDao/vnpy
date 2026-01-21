@@ -230,6 +230,24 @@ class LogData(BaseData):
 
 
 @dataclass
+class TradeOverviewData(BaseData):
+    """
+    TradeOverview data contains information about each symbol traded.
+    """
+
+    symbol: str
+    exchange: Exchange
+    name: str
+    product: Product
+
+    cancel_order_num: int
+    cancel_threshold: int
+    insert_order_num: int
+    insert_threshold: int
+
+
+
+@dataclass
 class ContractData(BaseData):
     """
     Contract data contains basic information about each contract traded.

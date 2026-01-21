@@ -45,3 +45,4 @@ $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_scripttrader.gi
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_spreadtrading.git@tag125#egg=vnpy_spreadtrading
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_webtrader.git@tag105#egg=vnpy_webtrader
 $python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mini.git@tag001#egg=vnpy_mini
+$python -m pip install -e git+https://github.com/HanYuanDao/vnpy_mongodb.git@tag1.1.0#egg=vnpy_mongodb
