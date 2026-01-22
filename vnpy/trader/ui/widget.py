@@ -988,7 +988,10 @@ class TradingWidget(QtWidgets.QWidget):
             QtWidgets.QMessageBox.critical(self, _("委托失败"), _("请输入委托数量"))
             return
         volume: float = float(volume_text)
-
+        volume_limit: int = SETTINGS.get('volume_limit')
+        if volume> volume_limit:
+            QtWidgets.QMessageBox.critical(self, _("委托失败"), _("下单数量超过最大下单数量限制"))
+            return
         price_text: str = str(self.price_line.text())
         if not price_text:
             price: float = 0
