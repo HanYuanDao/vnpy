@@ -5,6 +5,7 @@ from .event import (
     EVENT_TICK,
     EVENT_ORDER,
     EVENT_TRADE,
+    EVENT_TRADE_OVERVIEW,
     EVENT_POSITION,
     EVENT_ACCOUNT,
     EVENT_CONTRACT,
@@ -15,6 +16,7 @@ from .object import (
     TickData,
     OrderData,
     TradeData,
+    TradeOverviewData,
     PositionData,
     AccountData,
     ContractData,
@@ -113,6 +115,10 @@ class BaseGateway(ABC):
         """
         self.on_event(EVENT_ORDER, order)
         self.on_event(EVENT_ORDER + order.vt_orderid, order)
+
+    def on_trade_overview(self, trade_overview: TradeOverviewData) -> None:
+        self.on_event(EVENT_TRADE_OVERVIEW, trade_overview)
+        self.on_event(EVENT_TRADE_OVERVIEW + trade_overview.symbol, trade_overview)
 
     def on_position(self, position: PositionData) -> None:
         """

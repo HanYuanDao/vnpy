@@ -140,6 +140,12 @@ class OrderData(BaseData):
         """
         return self.status in ACTIVE_STATUSES
 
+    def is_just_initialized(self) -> bool:
+        return Status.SUBMITTING == self.status
+
+    def is_canceled(self) -> bool:
+        return Status.CANCELLED == self.status
+
     def create_cancel_request(self) -> "CancelRequest":
         """
         Create cancel request object from order.
@@ -237,14 +243,11 @@ class TradeOverviewData(BaseData):
 
     symbol: str
     exchange: Exchange
-    name: str
-    product: Product
 
     cancel_order_num: int
-    cancel_threshold: int
-    insert_order_num: int
-    insert_threshold: int
-
+    cancel_order_threshold: int
+    insert_volume_num: int
+    insert_volume_threshold: int
 
 
 @dataclass
