@@ -983,6 +983,10 @@ class TradingWidget(QtWidgets.QWidget):
             QtWidgets.QMessageBox.critical(self, _("委托失败"), _("请输入合约代码"))
             return
 
+        name_line: str = str(self.name_line.text())
+        if not name_line:
+            QtWidgets.QMessageBox.critical(self, _("委托失败"), _("请输入正确的合约代码"))
+            return
         volume_text: str = str(self.volume_line.text())
         if not volume_text:
             QtWidgets.QMessageBox.critical(self, _("委托失败"), _("请输入委托数量"))
