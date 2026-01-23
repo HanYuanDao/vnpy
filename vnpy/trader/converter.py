@@ -42,7 +42,7 @@ class PositionHolding:
         self.short_td_frozen: float = 0
 
         self.cancel_order_num: int = 0
-        self.insert_order_num: int = 0
+        self.insert_volume_num: int = 0
 
     def update_position(self, position: PositionData) -> None:
         """"""

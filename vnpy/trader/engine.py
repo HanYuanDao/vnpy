@@ -391,17 +391,16 @@ class OmsEngine(BaseEngine):
                 exchange = position_holding.exchange,
                 cancel_order_num = 0,
                 cancel_order_threshold = 0,
-                insert_order_num = 0,
-                insert_order_threshold = 0,
+                insert_volume_num = 0,
+                insert_volume_threshold = 0,
                 gateway_name=order.gateway_name
             )
-        trade_overview.insert_order_num = position_holding.long_td + position_holding.short_td
+        trade_overview.insert_volume_num = position_holding.long_td + position_holding.short_td
         if order.is_canceled():
             trade_overview.cancel_order_num += 1
         self.trade_overviews[order.vt_symbol] = trade_overview
         event: Event = Event(EVENT_TRADE_OVERVIEW, trade_overview)
         self.event_engine.put(event)
-
 
     def process_trade_event(self, event: Event) -> None:
         """"""

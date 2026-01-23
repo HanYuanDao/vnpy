@@ -246,8 +246,8 @@ class TradeOverviewData(BaseData):
 
     cancel_order_num: int
     cancel_order_threshold: int
-    insert_order_num: int
-    insert_order_threshold: int
+    insert_volume_num: int
+    insert_volume_threshold: int
 
 
 @dataclass
