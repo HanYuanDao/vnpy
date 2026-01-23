@@ -7,6 +7,7 @@ from vnpy.event import EVENT_TIMER  # noqa
 EVENT_TICK = "eTick."
 EVENT_TRADE = "eTrade."
 EVENT_ORDER = "eOrder."
+EVENT_TRADE_OVERVIEW = "eTradeOverview."
 EVENT_POSITION = "ePosition."
 EVENT_ACCOUNT = "eAccount."
 EVENT_QUOTE = "eQuote."

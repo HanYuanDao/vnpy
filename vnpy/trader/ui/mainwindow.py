@@ -18,6 +18,7 @@ from .widget import (
     TickMonitor,
     OrderMonitor,
     TradeMonitor,
+    TradeOverviewMonitor,
     PositionMonitor,
     AccountMonitor,
     LogMonitor,
@@ -79,6 +80,9 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         trade_widget, trade_dock = self.create_dock(
             TradeMonitor, _("成交"), QtCore.Qt.DockWidgetArea.RightDockWidgetArea
+        )
+        trade_overview_widget, trade_overview_dock = self.create_dock(
+            TradeOverviewMonitor, _("交易统计"), QtCore.Qt.DockWidgetArea.RightDockWidgetArea
         )
         log_widget, log_dock = self.create_dock(
             LogMonitor, _("日志"), QtCore.Qt.DockWidgetArea.BottomDockWidgetArea

@@ -17,6 +17,7 @@ from ..engine import MainEngine, Event, EventEngine
 from ..event import (
     EVENT_QUOTE,
     EVENT_TICK,
+    EVENT_TRADE_OVERVIEW,
     EVENT_TRADE,
     EVENT_ORDER,
     EVENT_POSITION,
@@ -466,6 +467,26 @@ class TradeMonitor(BaseMonitor):
         "price": {"display": _("价格"), "cell": BaseCell, "update": False},
         "volume": {"display": _("数量"), "cell": BaseCell, "update": False},
         "datetime": {"display": _("时间"), "cell": TimeCell, "update": False},
+        "gateway_name": {"display": _("接口"), "cell": BaseCell, "update": False},
+    }
+
+
+class TradeOverviewMonitor(BaseMonitor):
+    """
+    Monitor for trade data.
+    """
+
+    event_type: str = EVENT_TRADE_OVERVIEW
+    data_key: str = "symbol"
+    sorting: bool = True
+
+    headers: dict = {
+        "symbol": {"display": _("代码"), "cell": BaseCell, "update": False},
+        "exchange": {"display": _("交易所"), "cell": EnumCell, "update": False},
+        "cancel_order_num": {"display": _("撤单订单数量"), "cell": BaseCell, "update": True},
+        "cancel_order_threshold": {"display": _("撤单订单数量限制"), "cell": EnumCell, "update": True},
+        "insert_order_num": {"display": _("开仓订单数量"), "cell": BaseCell, "update": True},
+        "insert_order_threshold": {"display": _("开仓订单数量限制"), "cell": BaseCell, "update": True},
         "gateway_name": {"display": _("接口"), "cell": BaseCell, "update": False},
     }
 

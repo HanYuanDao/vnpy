@@ -5,6 +5,7 @@ from .object import (
     ContractData,
     OrderData,
     TradeData,
+    TradeOverviewData,
     PositionData,
     OrderRequest
 )
@@ -39,6 +40,9 @@ class PositionHolding:
         self.short_pos_frozen: float = 0
         self.short_yd_frozen: float = 0
         self.short_td_frozen: float = 0
+
+        self.cancel_order_num: int = 0
+        self.insert_order_num: int = 0
 
     def update_position(self, position: PositionData) -> None:
         """"""
@@ -334,6 +338,15 @@ class OffsetConverter:
         if holding:
             holding.update_trade(trade)
 
+    # def update_trade_overview(self, trade_overview: TradeOverviewData) -> None:
+    #     """"""
+    #     if not self.is_convert_required(trade_overview.symbol):
+    #         return
+    #
+    #     holding: PositionHolding | None = self.get_position_holding(trade_overview.symbol)
+    #     if holding:
+    #         holding.update_trade_overview(trade_overview)
+
     def update_order(self, order: OrderData) -> None:
         """"""
         if not self.is_convert_required(order.vt_symbol):
@@ -342,6 +355,7 @@ class OffsetConverter:
         holding: PositionHolding | None = self.get_position_holding(order.vt_symbol)
         if holding:
             holding.update_order(order)
+
 
     def update_order_request(self, req: OrderRequest, vt_orderid: str) -> None:
         """"""

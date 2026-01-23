@@ -14,6 +14,7 @@ from .event import (
     EVENT_TICK,
     EVENT_ORDER,
     EVENT_TRADE,
+    EVENT_TRADE_OVERVIEW,
     EVENT_POSITION,
     EVENT_ACCOUNT,
     EVENT_CONTRACT,
@@ -33,6 +34,7 @@ from .object import (
     BarData,
     TickData,
     TradeData,
+    TradeOverviewData,
     PositionData,
     AccountData,
     ContractData,
@@ -144,6 +146,7 @@ class MainEngine:
         self.get_all_ticks: Callable[[], list[TickData]] = oms_engine.get_all_ticks
         self.get_all_orders: Callable[[], list[OrderData]] = oms_engine.get_all_orders
         self.get_all_trades: Callable[[], list[TradeData]] = oms_engine.get_all_trades
+        self.get_all_trade_overview: Callable[[], list[TradeOverviewData]] = oms_engine.get_all_trade_overview
         self.get_all_positions: Callable[[], list[PositionData]] = oms_engine.get_all_positions
         self.get_all_accounts: Callable[[], list[AccountData]] = oms_engine.get_all_accounts
         self.get_all_contracts: Callable[[], list[ContractData]] = oms_engine.get_all_contracts
@@ -334,6 +337,7 @@ class OmsEngine(BaseEngine):
         self.ticks: dict[str, TickData] = {}
         self.orders: dict[str, OrderData] = {}
         self.trades: dict[str, TradeData] = {}
+        self.trade_overviews: dict[str, TradeOverviewData] = {}
         self.positions: dict[str, PositionData] = {}
         self.accounts: dict[str, AccountData] = {}
         self.contracts: dict[str, ContractData] = {}
@@ -377,6 +381,27 @@ class OmsEngine(BaseEngine):
         converter: OffsetConverter | None = self.offset_converters.get(order.gateway_name, None)
         if converter:
             converter.update_order(order)
+
+        position_holding = converter.get_position_holding(order.vt_symbol)
+        trade_overview = self.trade_overviews.get(order.vt_symbol, None)
+        if not trade_overview:
+            contract = self.contracts[order.vt_symbol]
+            trade_overview : TradeOverviewData = TradeOverviewData(
+                symbol = order.vt_symbol,
+                exchange = position_holding.exchange,
+                cancel_order_num = 0,
+                cancel_order_threshold = 0,
+                insert_order_num = 0,
+                insert_order_threshold = 0,
+                gateway_name=order.gateway_name
+            )
+        trade_overview.insert_order_num = position_holding.long_td + position_holding.short_td
+        if order.is_canceled():
+            trade_overview.cancel_order_num += 1
+        self.trade_overviews[order.vt_symbol] = trade_overview
+        event: Event = Event(EVENT_TRADE_OVERVIEW, trade_overview)
+        self.event_engine.put(event)
+
 
     def process_trade_event(self, event: Event) -> None:
         """"""
@@ -483,6 +508,12 @@ class OmsEngine(BaseEngine):
         Get all trade data.
         """
         return list(self.trades.values())
+
+    def get_all_trade_overview(self) -> list[TradeOverviewData]:
+        """
+        Get all trade overview data.
+        """
+        return list(self.trade_overviews.values())
 
     def get_all_positions(self) -> list[PositionData]:
         """
