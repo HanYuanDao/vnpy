@@ -280,6 +280,9 @@ class ContractData(BaseData):
     option_portfolio: str | None = None
     option_index: str | None = None          # for identifying options with same strike price
 
+    cancel_order_threshold: int = 0
+    insert_volume_threshold: int = 0
+
     def __post_init__(self) -> None:
         """"""
         self.vt_symbol: str = f"{self.symbol}.{self.exchange.value}"
