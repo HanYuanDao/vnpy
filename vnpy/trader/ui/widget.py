@@ -951,8 +951,9 @@ class TradingWidget(QtWidgets.QWidget):
             self.gateway_combo.setCurrentIndex(ix)
 
             # Update price digits
+            self.pirce_tick = contract.pricetick
             self.price_digits = get_digits(contract.pricetick)
-
+            
         self.clear_label_text()
         self.volume_line.setText("")
         self.price_line.setText("")
@@ -1021,7 +1022,14 @@ class TradingWidget(QtWidgets.QWidget):
         if not price_text:
             price: float = 0
         else:
+            
             price = float(price_text)
+           
+            bigger: int = pow(10, self.price_digits)
+            print(price, self.pirce_tick, (price * bigger)% (self.pirce_tick * bigger))
+            if not  (price * bigger)% (self.pirce_tick * bigger) == 0:
+                QtWidgets.QMessageBox.critical(self, _("委托失败"), _("最小变动价格错误"))
+                return
 
         req: OrderRequest = OrderRequest(
             symbol=symbol,
