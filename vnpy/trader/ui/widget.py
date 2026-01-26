@@ -513,6 +513,7 @@ class OrderMonitor(BaseMonitor):
         "traded": {"display": _("已成交"), "cell": BaseCell, "update": True},
         "status": {"display": _("状态"), "cell": EnumCell, "update": True},
         "datetime": {"display": _("时间"), "cell": TimeCell, "update": True},
+        "trade_memo": {"display": _("交易备注"), "cell": BaseCell, "update": False},
         "gateway_name": {"display": _("接口"), "cell": BaseCell, "update": False},
     }
 
@@ -730,6 +731,8 @@ class TradingWidget(QtWidgets.QWidget):
         self.init_ui()
         self.register_event()
 
+        self.is_lock = False
+
     def init_ui(self) -> None:
         """"""
         self.setFixedWidth(300)
@@ -777,6 +780,9 @@ class TradingWidget(QtWidgets.QWidget):
         cancel_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("全撤"))
         cancel_button.clicked.connect(self.cancel_all)
 
+        lock_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("锁定"))
+        lock_button.clicked.connect(self.lock)
+
         grid: QtWidgets.QGridLayout = QtWidgets.QGridLayout()
         grid.addWidget(QtWidgets.QLabel(_("交易所")), 0, 0)
         grid.addWidget(QtWidgets.QLabel(_("代码")), 1, 0)
@@ -799,6 +805,7 @@ class TradingWidget(QtWidgets.QWidget):
         grid.addWidget(self.gateway_combo, 8, 1, 1, 2)
         grid.addWidget(send_button, 9, 0, 1, 3)
         grid.addWidget(cancel_button, 10, 0, 1, 3)
+        grid.addWidget(lock_button, 11, 0, 1, 3)
 
         # Market depth display area
         bid_color: str = "rgb(255,174,201)"
@@ -1000,6 +1007,10 @@ class TradingWidget(QtWidgets.QWidget):
         """
         Send new order manually.
         """
+        if self.is_lock:
+            QtWidgets.QMessageBox.critical(self, "锁定账号", "账号已锁定，无法交易")
+            return
+
         symbol: str = str(self.symbol_line.text())
         if not symbol:
             QtWidgets.QMessageBox.critical(self, _("委托失败"), _("请输入合约代码"))
@@ -1026,7 +1037,6 @@ class TradingWidget(QtWidgets.QWidget):
             price = float(price_text)
            
             bigger: int = pow(10, self.price_digits)
-            print(price, self.pirce_tick, (price * bigger)% (self.pirce_tick * bigger))
             if not  (price * bigger)% (self.pirce_tick * bigger) == 0:
                 QtWidgets.QMessageBox.critical(self, _("委托失败"), _("最小变动价格错误"))
                 return
@@ -1050,6 +1060,20 @@ class TradingWidget(QtWidgets.QWidget):
         """
         Cancel all active orders.
         """
+        if self.is_lock:
+            QtWidgets.QMessageBox.critical(self, "锁定账号", "账号已锁定，无法交易")
+            return
+
+        order_list: list[OrderData] = self.main_engine.get_all_active_orders()
+        for order in order_list:
+            req: CancelRequest = order.create_cancel_request()
+            self.main_engine.cancel_order(req, order.gateway_name)
+
+    def lock(self) -> None:
+        self.is_lock = True
+
+        QtWidgets.QMessageBox.critical(self, "锁定账号", "已锁定账号无法交易")
+
         order_list: list[OrderData] = self.main_engine.get_all_active_orders()
         for order in order_list:
             req: CancelRequest = order.create_cancel_request()

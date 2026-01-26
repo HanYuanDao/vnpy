@@ -63,6 +63,9 @@ class PositionHolding:
             if order.vt_orderid in self.active_orders:
                 self.active_orders.pop(order.vt_orderid)
 
+        if order.is_canceled():
+            self.cancel_order_num += 1
+
         self.calculate_frozen()
 
     def update_order_request(self, req: OrderRequest, vt_orderid: str) -> None:
@@ -168,6 +171,11 @@ class PositionHolding:
 
         self.long_pos_frozen = self.long_td_frozen + self.long_yd_frozen
         self.short_pos_frozen = self.short_td_frozen + self.short_yd_frozen
+
+        self.sum_overview()
+
+    def sum_overview(self) -> None:
+        self.insert_volume_num = self.long_td + self.long_td_frozen + self.short_td + self.short_td_frozen
 
     def convert_order_request_shfe(self, req: OrderRequest) -> list[OrderRequest]:
         """"""
@@ -355,7 +363,6 @@ class OffsetConverter:
         holding: PositionHolding | None = self.get_position_holding(order.vt_symbol)
         if holding:
             holding.update_order(order)
-
 
     def update_order_request(self, req: OrderRequest, vt_orderid: str) -> None:
         """"""
