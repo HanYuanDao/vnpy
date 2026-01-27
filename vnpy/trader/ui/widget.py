@@ -780,7 +780,7 @@ class TradingWidget(QtWidgets.QWidget):
         cancel_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("全撤"))
         cancel_button.clicked.connect(self.cancel_all)
 
-        lock_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("锁定"))
+        lock_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("锁定/解锁"))
         lock_button.clicked.connect(self.lock)
 
         grid: QtWidgets.QGridLayout = QtWidgets.QGridLayout()
@@ -1070,14 +1070,19 @@ class TradingWidget(QtWidgets.QWidget):
             self.main_engine.cancel_order(req, order.gateway_name)
 
     def lock(self) -> None:
-        self.is_lock = True
+        if not self.is_lock:
+            QtWidgets.QMessageBox.critical(self, "锁定账号", "已锁定账号无法交易")
 
-        QtWidgets.QMessageBox.critical(self, "锁定账号", "已锁定账号无法交易")
+            order_list: list[OrderData] = self.main_engine.get_all_active_orders()
+            for order in order_list:
+                req: CancelRequest = order.create_cancel_request()
+                self.main_engine.cancel_order(req, order.gateway_name)
 
-        order_list: list[OrderData] = self.main_engine.get_all_active_orders()
-        for order in order_list:
-            req: CancelRequest = order.create_cancel_request()
-            self.main_engine.cancel_order(req, order.gateway_name)
+            self.main_engine.write_log("账号已锁定")
+        else:
+            self.main_engine.write_log("账号已解锁")
+
+        self.is_lock = not self.is_lock
 
     def update_with_cell(self, cell: BaseCell) -> None:
         """"""
