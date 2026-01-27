@@ -398,9 +398,9 @@ class OmsEngine(BaseEngine):
             symbol = order.vt_symbol,
             exchange = position_holding.exchange,
             cancel_order_num = position_holding.cancel_order_num,
-            cancel_order_threshold = contract.cancel_order_threshold,
+            cancel_order_threshold = SETTINGS["cancel_order_threshold"],
             insert_volume_num = position_holding.insert_volume_num,
-            insert_volume_threshold = contract.insert_volume_threshold,
+            insert_volume_threshold = SETTINGS["insert_volume_threshold"],
             gateway_name=order.gateway_name
         )
         event: Event = Event(EVENT_TRADE_OVERVIEW, trade_overview)
@@ -457,7 +457,7 @@ class OmsEngine(BaseEngine):
         position_holding = converter.get_position_holding(symbol)
         if not position_holding:
             return False
-        insert_volume_threshold: int =  SETTINGS["insert_volume_threshold"]
+        insert_volume_threshold: int = SETTINGS["insert_volume_threshold"]
         return position_holding.insert_volume_num >= insert_volume_threshold
 
     def is_cancel_threshold(self, gateway_name: str, symbol: str) -> bool:
