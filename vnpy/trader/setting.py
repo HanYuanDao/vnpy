@@ -9,6 +9,7 @@ from .utility import load_json
 
 
 SETTINGS: dict = {
+    "volume_limit": 10,
     "insert_volume_threshold": 10,
     "cancel_order_threshold": 10,
     "font.family": "微软雅黑",
