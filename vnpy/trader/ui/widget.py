@@ -1027,7 +1027,7 @@ class TradingWidget(QtWidgets.QWidget):
         volume: float = float(volume_text)
         volume_limit: int = SETTINGS.get('volume_limit')
         if volume> volume_limit:
-            QtWidgets.QMessageBox.critical(self, _("委托失败"), _("下单数量超过最大下单数量限制"))
+            QtWidgets.QMessageBox.critical(self, _("委托失败"), _("超过单笔最大下单数量限制！"))
             return
         price_text: str = str(self.price_line.text())
         if not price_text:
