@@ -156,6 +156,8 @@ class MainEngine:
         self.update_order_request: Callable[[OrderRequest, str, str], None] = oms_engine.update_order_request
         self.convert_order_request: Callable[[OrderRequest, str, bool, bool], list[OrderRequest]] = oms_engine.convert_order_request
         self.get_converter: Callable[[str], OffsetConverter | None] = oms_engine.get_converter
+        self.is_insert_threshold = oms_engine.is_insert_threshold
+        self.is_cancel_threshold = oms_engine.is_cancel_threshold
 
         email_engine: EmailEngine = self.add_engine(EmailEngine)
         self.send_email: Callable[[str, str, str | None], None] = email_engine.send_email
@@ -233,6 +235,10 @@ class MainEngine:
         """
         Send new order request to a specific gateway.
         """
+        if (self.is_insert_threshold(gateway_name, req.symbol + "." + req.exchange.value)):
+            self.write_log("超过阈值禁止报单")
+            return
+
         gateway: BaseGateway | None = self.get_gateway(gateway_name)
         if gateway:
             return gateway.send_order(req)
@@ -243,6 +249,10 @@ class MainEngine:
         """
         Send cancel order request to a specific gateway.
         """
+        if (self.is_cancel_threshold(gateway_name, req.symbol + "." + req.exchange.value)):
+            self.write_log("超过阈值禁止撤单")
+            return
+
         gateway: BaseGateway | None = self.get_gateway(gateway_name)
         if gateway:
             gateway.cancel_order(req)
@@ -441,6 +451,22 @@ class OmsEngine(BaseEngine):
         # Otherwise, pop inactive quote from in dict
         elif quote.vt_quoteid in self.active_quotes:
             self.active_quotes.pop(quote.vt_quoteid)
+
+    def is_insert_threshold(self, gateway_name: str, symbol: str) -> bool:
+        converter: OffsetConverter | None = self.offset_converters.get(gateway_name, None)
+        position_holding = converter.get_position_holding(symbol)
+        if not position_holding:
+            return False
+        insert_volume_threshold: int =  SETTINGS["insert_volume_threshold"]
+        return position_holding.insert_volume_num >= insert_volume_threshold
+
+    def is_cancel_threshold(self, gateway_name: str, symbol: str) -> bool:
+        converter: OffsetConverter | None = self.offset_converters.get(gateway_name, None)
+        position_holding = converter.get_position_holding(symbol)
+        if not position_holding:
+            return False
+        cancel_order_threshold: int = SETTINGS["cancel_order_threshold"]
+        return position_holding.cancel_order_num >= cancel_order_threshold
 
     def get_tick(self, vt_symbol: str) -> TickData | None:
         """
