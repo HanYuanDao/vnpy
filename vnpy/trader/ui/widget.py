@@ -484,7 +484,7 @@ class TradeOverviewMonitor(BaseMonitor):
         "symbol": {"display": _("代码"), "cell": BaseCell, "update": False},
         "exchange": {"display": _("交易所"), "cell": EnumCell, "update": False},
         "cancel_order_num": {"display": _("撤单订单数量"), "cell": BaseCell, "update": True},
-        "cancel_order_threshold": {"display": _("撤单订单数量限制"), "cell": EnumCell, "update": True},
+        "cancel_order_threshold": {"display": _("撤单订单数量限制"), "cell": BaseCell, "update": True},
         "insert_volume_num": {"display": _("开仓手数数量"), "cell": BaseCell, "update": True},
         "insert_volume_threshold": {"display": _("开仓订单数量限制"), "cell": BaseCell, "update": True},
         "gateway_name": {"display": _("接口"), "cell": BaseCell, "update": False},
