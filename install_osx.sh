@@ -32,8 +32,8 @@ $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_vtp.git@tag0.
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_sqlite.git@tag110#egg=vnpy_sqlite
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_algotrading.git@tag107#egg=vnpy_algotrading
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_chartwizard.git@tag104#egg=vnpy_chartwizard
-$python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_ctabacktester.git@tag116#egg=vnpy_ctabacktester
-$python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_ctastrategy.git@tag131#egg=vnpy_ctastrategy
+$python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_ctabacktester.git@tag1.3.0#egg=vnpy_ctabacktester
+$python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_ctastrategy.git@tag1.4.1#egg=vnpy_ctastrategy
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_datamanager.git@tag111#egg=vnpy_datamanager
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_optionmaster.git@tag110#egg=vnpy_optionmaster
 $python -m pip install -e git+ssh://git@github.com/HanYuanDao/vnpy_paperaccount.git@tag106#egg=vnpy_paperaccount
