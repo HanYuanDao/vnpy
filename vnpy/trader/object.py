@@ -333,6 +333,7 @@ class OrderRequest:
     price: float = 0
     offset: Offset = Offset.NONE
     reference: str = ""
+    memo: str = ""
 
     def __post_init__(self) -> None:
         """"""
@@ -352,6 +353,7 @@ class OrderRequest:
             price=self.price,
             volume=self.volume,
             reference=self.reference,
+            memo=self.memo,
             gateway_name=gateway_name,
         )
         return order
