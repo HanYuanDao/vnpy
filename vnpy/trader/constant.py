@@ -24,7 +24,7 @@ _PRODUCE_N_RELAX_END_HM_2: str = "010000"
 _PRODUCE_N_RELAX_END_HM_3: str = "023000"
 
 
-class CtaTradeStat(IntEnum):
+class CtaTradeState(IntEnum):
     """
     CTA strategy trade state.
 
@@ -33,15 +33,14 @@ class CtaTradeStat(IntEnum):
 
     INACTIVE = (0, "不进行任何活动")
     OPENING = (1, "开始开仓")
-    HOLDING = (5, "已持仓")
-    STOP_LOSSING = (10, "开始止损")
-    STOP_PROFITING = (20, "开始止盈")
+    HOLDING = (10, "已持仓")
+    STOP_LOSSING = (60, "开始止损")
+    STOP_PROFITING = (70, "开始止盈")
     SLEEPING = (91, "转为休眠")
-    CLEANING_FIRST = (92, "首次清理持仓")
-    CLEANING_CONFIRMED = (93, "确认持仓清理完毕")
+    CLEANING_TRADING_SESSION = (92, "跨交易时间前清理持仓")
 
-    def __new__(cls, code: int, description: str) -> "CtaTradeStat":
-        obj: "CtaTradeStat" = int.__new__(cls, code)
+    def __new__(cls, code: int, description: str) -> "CtaTradeState":
+        obj: "CtaTradeState" = int.__new__(cls, code)
         obj._value_ = code
         obj.description = description
         return obj
