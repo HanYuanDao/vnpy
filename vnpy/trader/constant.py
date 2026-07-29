@@ -199,6 +199,29 @@ class Interval(Enum):
     TICK = "tick"
 
 
+class ExchangeXinQi(Enum):
+    CFFEX = ("CFFEX", Exchange.CFFEX, 3)
+    SHFE = ("SHFE", Exchange.SHFE, 4)
+    CZCE = ("CZCE", Exchange.CZCE, 2)
+    DCE = ("DCE", Exchange.DCE, 1)
+    INE = ("INE", Exchange.INE, 5)
+    GFEX = ("GFEX", Exchange.GFEX, 8)
+
+    @classmethod
+    def get_by_exchange_no(cls, exchange_no: int | str) -> "ExchangeXinQi | None":
+        """根据新旗交易所编号返回对应枚举。"""
+        try:
+            target_id: int = int(exchange_no)
+        except (TypeError, ValueError):
+            return None
+
+        for exchange in cls:
+            if exchange.value[2] == target_id:
+                return exchange
+
+        return None
+
+
 class Produce(Enum):
     """
     Futures product metadata and trading-session helpers translated from ProductEnum.
